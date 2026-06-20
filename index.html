@@ -209,10 +209,22 @@
         let generatedCaptcha = "";
         let loggedInUser = null;
 
+        // Додано перевірені безкоштовні TURN та STUN сервери для пробиття NAT мобільних операторів
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun.services.mozilla.com' },
+                { 
+                    urls: 'turn:relay.metered.ca:80', 
+                    username: 'openwebrtc', 
+                    credential: 'openwebrtc_bypass' 
+                },
+                { 
+                    urls: 'turn:relay.metered.ca:443', 
+                    username: 'openwebrtc', 
+                    credential: 'openwebrtc_bypass' 
+                }
             ] 
         };
 
@@ -238,7 +250,6 @@
             document.getElementById('captchaCode').innerText = generatedCaptcha;
         }
 
-        // Локальна база даних прямо у пристрої користувача
         function getLocalAccounts() {
             return JSON.parse(localStorage.getItem('talknow_local_db') || '{}');
         }
@@ -314,7 +325,7 @@
         function saveSettingsChanges() {
             if (!loggedInUser) return;
             let accounts = getLocalAccounts();
-            delete accounts[loggedInUser.name]; // видаляємо старий ключ, якщо ім'я змінилося
+            delete accounts[loggedInUser.name];
 
             loggedInUser.name = document.getElementById('settName').value;
             loggedInUser.password = document.getElementById('settPassword').value;
@@ -340,7 +351,7 @@
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
             } catch (e) { 
-                console.log("Камера/мікрофон заблоковані або не знайдені.");
+                alert("Будь ласка, дозвольте доступ до камери та мікрофона у браузері!");
             }
         }
 
@@ -426,7 +437,9 @@
 
                 if (data.type === 'candidate') {
                     if (peerConnection) {
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        try {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                        } catch(e) { console.error("Помилка додавання ICE кандидата", e); }
                     }
                 }
             };
@@ -435,12 +448,15 @@
         async function startCall(isCaller) {
             peerConnection = new RTCPeerConnection(configuration);
             
+            // Важливо: Прикріплюємо треки ДО створення оферу, щоб вони потрапили у з'єднання
             if (localStream) {
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             }
 
             peerConnection.ontrack = (event) => {
-                document.getElementById('remoteVideo').srcObject = event.streams[0];
+                if (event.streams && event.streams[0]) {
+                    document.getElementById('remoteVideo').srcObject = event.streams[0];
+                }
             };
 
             peerConnection.onicecandidate = (event) => {
@@ -488,7 +504,6 @@
             document.getElementById('lblPartner').innerText = "Співрозмовник";
         }
 
-        // Спочатку запускаємо камеру, потім перевіряємо акаунти
         initCamera().then(() => {
             checkLocalStorage();
         });
