@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TalkNow Pro — Ексклюзивний Доступ</title>
+    <title>TalkNow Pro — Надійний Відеозв'язок</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -425,10 +425,10 @@
 
         <div class="main-content" id="tabVideo">
             <div class="video-container">
-                <video id="remoteVideo" autoplay playsinline></video>
+                <video id="remoteVideo" autoplay playsinline webkit-playsinline></video>
                 
                 <div class="local-video-wrapper">
-                    <video id="localVideo" autoplay playsinline muted></video>
+                    <video id="localVideo" autoplay playsinline webkit-playsinline muted></video>
                 </div>
 
                 <div class="partner-info-overlay" id="partnerInfo">
@@ -453,7 +453,7 @@
             </div>
             
             <div class="chat-messages" id="chatMessages">
-                <div class="msg-block msg-system">Система ініціалізована. Захист розробника активовано.</div>
+                <div class="msg-block msg-system">Система ініціалізована. Зв'язок покращено захищеними TURN реле.</div>
             </div>
 
             <div class="chat-input-wrapper">
@@ -473,7 +473,7 @@
     <div class="modal" id="authModal">
         <div class="modal-card">
             <h2>Вхід у систему</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Введіть ваш звичайний нікнейм, під яким ви будете спілкуватися в чаті.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Введіть нікнейм для спілкування. Для активації панелі Creator введіть `Адмін`.</p>
             <div style="text-align: left; margin-bottom: 15px;">
                 <input type="text" id="usernameInput" placeholder="Ваше ім'я..." value="Гість">
             </div>
@@ -489,18 +489,22 @@
         let loggedInUser = null;
         let isDeveloper = false;
 
-        // --- КЛЮЧ ЗАХИСТУ ВЛАСНИКА ---
-        // Система створює мітку у твоїй системі. Ніхто інший її не отримає.
         if (!localStorage.getItem('dev_hardware_token')) {
-            // Генеруємо випадковий унікальний підпис при першому запуску
             localStorage.setItem('dev_hardware_token', 'user_' + Math.random().toString(36).substr(2, 15));
         }
-        
-        // Отримуємо твій токен
         const myHardwareToken = localStorage.getItem('dev_hardware_token');
 
+        // ГЛОБАЛЬНА ПЕРЕВІРКА ТА ОНОВЛЕННЯ СЕРВЕРІВ (Додано потужні TURN-сервери для обходу стін зв'язку)
         const configuration = { 
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] 
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'turn:relay.metered.ca:80', username: 'openwebrtc', credential: 'openwebrtc_bypass' },
+                { urls: 'turn:relay.metered.ca:443', username: 'openwebrtc', credential: 'openwebrtc_bypass' },
+                { urls: 'turn:relay.metered.ca:443?transport=tcp', username: 'openwebrtc', credential: 'openwebrtc_bypass' }
+            ],
+            iceCandidatePoolSize: 10
         };
 
         function logDev(message) {
@@ -534,10 +538,6 @@
         function closeAuthModal() {
             const name = document.getElementById('usernameInput').value.trim() || "Гість";
             
-            // ХИТРИЙ ХАК: Тепер ти заходиш ПІД БУДЬ-ЯКИМ ІМЕНЕМ.
-            // Але адмін-панель активується тільки якщо твій hardware token збігається з твоїм пристроєм.
-            // Щоб увімкнути режим творця вперше, введи нік "Адмін" або залиш поточний токен у коді.
-            // Спростимо: розробник визначається виключно твоїм особистим підписом!
             if (name === "Адмін" || myHardwareToken === localStorage.getItem('my_saved_owner_key')) {
                 if(!localStorage.getItem('my_saved_owner_key')) {
                     localStorage.setItem('my_saved_owner_key', myHardwareToken);
@@ -546,7 +546,7 @@
                 document.getElementById('devBadge').style.display = 'block';
                 document.getElementById('devConsole').style.display = 'block';
                 document.getElementById('appTitle').innerText = "TalkNow Creator";
-                logDev("Авторизація розробника підтверджена за ID пристрою.");
+                logDev("Токен підтверджено. Вітаємо Творця.");
             }
 
             loggedInUser = {
@@ -564,12 +564,16 @@
 
         async function initCamera() {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                // Оптимальні параметри запиту камери для швидкого підвантаження
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } }, 
+                    audio: true 
+                });
                 document.getElementById('localVideo').srcObject = localStream;
-                logDev("Медіапристрої підключено.");
+                logDev("Камера і мікрофон успішно ініціалізовані локально.");
             } catch (e) { 
-                logDev(`Помилка камери: ${e.name}`);
-                appendSystemMessage(`Дозвольте доступ до камери/мікрофона та використовуйте HTTPS!`, true);
+                logDev(`Помилка доступу до медіа: ${e.name}`);
+                appendSystemMessage(`Помилка камери! Перевірте дозволи у браузері.`, true);
             }
         }
 
@@ -578,7 +582,7 @@
             socket = new WebSocket(`${protocol}//${window.location.host}`);
 
             socket.onopen = () => {
-                logDev("Синхронізація з сервером Render успішна.");
+                logDev("WS канал активовано.");
                 socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
             };
 
@@ -596,6 +600,8 @@
                     document.getElementById('chatStatus').innerText = "активний";
                     appendSystemMessage(`Підключено: ${p.name} з ${p.country}`);
                     switchMobileTab('video');
+                    
+                    // Запуск WebRTC з'єднання
                     startCall(true);
                 }
 
@@ -629,22 +635,42 @@
         }
 
         async function startCall(isCaller) {
+            logDev(`Створення нового RTC з'єднання. Caller: ${isCaller}`);
+            if (peerConnection) { peerConnection.close(); }
+            
             peerConnection = new RTCPeerConnection(configuration);
+            
             if (localStream) {
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            } else {
+                logDev("Увага: локальний медіапотік відсутній під час старту дзвінка.");
             }
+
+            // Отримання потоку партнера (Звук + Відео)
             peerConnection.ontrack = (event) => {
+                logDev("Отримано віддалені треки (відео/аудіо).");
+                const remoteVideo = document.getElementById('remoteVideo');
                 if (event.streams && event.streams[0]) {
-                    document.getElementById('remoteVideo').srcObject = event.streams[0];
+                    remoteVideo.srcObject = event.streams[0];
+                    
+                    // Фікс для мобільних пристроїв: примусовий запуск програвання після отримання потоку
+                    remoteVideo.play().catch(err => logDev(`Помилка автоплею віддаленого відео: ${err}`));
                 }
             };
+
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
                     socket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
                 }
             };
+
+            // Обробка зміни статусу з'єднання для налагодження
+            peerConnection.onconnectionstatechange = () => {
+                logDev(`Статус RTC з'єднання змінено: ${peerConnection.connectionState}`);
+            };
+
             if (isCaller) {
-                const offer = await peerConnection.createOffer();
+                const offer = await peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
                 await peerConnection.setLocalDescription(offer);
                 socket.send(JSON.stringify(peerConnection.localDescription));
             }
@@ -710,6 +736,8 @@
         }
 
         initCamera();
+        
+        // Автоматичний редірект на HTTPS для працездатності камер
         if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
             window.location.href = window.location.href.replace('http:', 'https:');
         }
