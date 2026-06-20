@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TalkNow Pro — Мобільний Відеочат</title>
+    <title>TalkNow Pro — Панель Розробника</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -15,13 +15,14 @@
             --text-muted: #9ca3af;
             --danger: #ff4a5a;
             --success: #10b981;
+            --dev-color: #a855f7;
         }
 
         * { 
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
             -webkit-tap-highlight-color: transparent;
         }
         
@@ -29,20 +30,23 @@
             background-color: var(--bg-dark); 
             color: var(--text-main); 
             display: flex; 
+            flex-direction: column;
             height: 100vh;
-            height: 100dvh; /* Сучасна висота для мобільних */
+            height: 100dvh;
             overflow: hidden; 
         }
 
+        /* Головний контейнер на весь екран без прокрутки */
         .app-wrapper {
             display: flex;
+            flex: 1;
             width: 100vw;
             height: 100%;
             overflow: hidden;
             position: relative;
         }
 
-        /* ЛІВА ПАНЕЛЬ: НАЛАШТУВАННЯ ПОШУКУ */
+        /* ЛІВА ПАНЕЛЬ: ФІЛЬТРИ */
         .side-panel {
             width: 320px;
             background-color: var(--bg-panel);
@@ -51,14 +55,14 @@
             flex-direction: column;
             padding: 20px;
             z-index: 10;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .logo-area {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .logo-area h1 {
@@ -93,11 +97,12 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+            overflow-y: auto;
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
@@ -108,7 +113,7 @@
         .option-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         select, input {
@@ -116,19 +121,13 @@
             background-color: var(--bg-card);
             border: 1px solid #374151;
             color: #fff;
-            padding: 14px;
+            padding: 12px;
             border-radius: 12px;
             font-size: 15px;
             outline: none;
-            transition: border 0.2s;
-            -webkit-appearance: none; /* Захист від дефолтного стилю iOS */
         }
 
-        select:focus, input:focus {
-            border-color: var(--accent);
-        }
-
-        /* ЦЕНТРАЛЬНА ЧАСТИНА: ВІДЕОПЛЕЄР */
+        /* ЦЕНТР: ВІДЕОПЛЕЄР */
         .main-content {
             flex: 1;
             display: flex;
@@ -143,7 +142,6 @@
             position: relative;
             width: 100%;
             height: 100%;
-            background: #05070f;
         }
 
         #remoteVideo {
@@ -153,13 +151,12 @@
             background-color: #05070f;
         }
 
-        /* Маленьке відео "Я" */
         .local-video-wrapper {
             position: absolute;
             top: 16px;
             right: 16px;
-            width: 120px;
-            height: 160px; /* Вертикальний формат зручніший для телефонів */
+            width: 110px;
+            height: 145px;
             border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
@@ -179,20 +176,21 @@
             position: absolute;
             top: 16px;
             left: 16px;
-            background: rgba(17, 24, 39, 0.8);
+            background: rgba(17, 24, 39, 0.85);
             padding: 8px 14px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.08);
             z-index: 4;
-            max-width: calc(100% - 160px);
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Панель керування кнопками пошуку */
         .bottom-controls {
             position: absolute;
-            bottom: 16px;
+            bottom: 20px;
             left: 0;
             width: 100%;
             display: flex;
@@ -210,38 +208,69 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            outline: none;
         }
 
         .btn-circle {
-            width: 52px;
-            height: 52px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background-color: rgba(31, 41, 55, 0.9);
             color: #fff;
-            font-size: 20px;
+            font-size: 18px;
             border: 1px solid rgba(255,255,255,0.1);
             backdrop-filter: blur(5px);
         }
 
-        .btn-circle.off {
-            background-color: var(--danger);
-            border-color: var(--danger);
-        }
+        .btn-circle.off { background-color: var(--danger); }
 
         .btn-primary {
-            height: 52px;
+            height: 50px;
             flex: 1;
-            max-width: 260px;
-            border-radius: 26px;
+            max-width: 240px;
+            border-radius: 25px;
             background: var(--accent-gradient);
             color: #000;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
         }
 
-        /* ПРАВА ПАНЕЛЬ: ТЕКСТОВИЙ ЧАТ */
+        /* ПАНЕЛЬ РОЗРОБНИКА (Зверху екрану відео) */
+        .developer-badge {
+            display: none;
+            position: absolute;
+            bottom: 85px;
+            right: 16px;
+            background: var(--dev-color);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 6;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        .dev-console {
+            display: none;
+            position: absolute;
+            bottom: 140px;
+            left: 16px;
+            right: 16px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--dev-color);
+            border-radius: 12px;
+            z-index: 6;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #00ff00;
+            overflow-y: auto;
+        }
+
+        /* ПРАВА ПАНЕЛЬ: ЧАТ */
         .chat-panel {
             width: 340px;
             background-color: var(--bg-panel);
@@ -249,7 +278,7 @@
             display: flex;
             flex-direction: column;
             z-index: 10;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .chat-header {
@@ -260,7 +289,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--bg-panel);
         }
 
         .chat-messages {
@@ -279,40 +307,11 @@
             border-radius: 16px;
             font-size: 14px;
             line-height: 1.4;
-            word-break: break-word;
         }
 
-        .msg-system {
-            background: rgba(31, 41, 55, 0.6);
-            color: var(--text-muted);
-            align-self: center;
-            font-size: 12px;
-            text-align: center;
-            max-width: 95%;
-        }
-        
-        .msg-error {
-            background: rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            align-self: center;
-            font-size: 13px;
-        }
-
-        .msg-me {
-            background: #2563eb;
-            color: #fff;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .msg-partner {
-            background: var(--bg-card);
-            color: #fff;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            border: 1px solid #374151;
-        }
+        .msg-system { background: rgba(31, 41, 55, 0.6); color: var(--text-muted); align-self: center; font-size: 12px; text-align: center; }
+        .msg-me { background: #2563eb; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-partner { background: var(--bg-card); color: #fff; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #374151; }
 
         .chat-input-wrapper {
             padding: 12px;
@@ -320,36 +319,18 @@
             display: flex;
             gap: 8px;
             background-color: var(--bg-panel);
-            padding-bottom: calc(12px + window.safe-area-inset-bottom); /* Враховує шторку на iPhone */
         }
 
-        .chat-input-wrapper input {
-            flex: 1;
-            padding: 12px;
-        }
-
-        .btn-send {
-            width: 48px;
-            height: 48px;
-            background: var(--bg-card);
-            border: 1px solid #374151;
-            border-radius: 12px;
-            color: var(--accent);
-            font-size: 16px;
-        }
-
-        /* МУЛЬТИТАБ БАР ДЛЯ МОБІЛОК (Знизу екрану) */
+        /* НИЖНЯ НАВІГАЦІЯ ДЛЯ СМАРТФОНІВ */
         .mobile-nav {
             display: none;
-            position: absolute;
-            bottom: 0;
-            left: 0;
             width: 100%;
-            height: 65px;
+            height: 60px;
             background-color: var(--bg-panel);
             border-top: 1px solid #2d3748;
             z-index: 20;
             grid-template-columns: repeat(3, 1fr);
+            padding-bottom: env(safe-area-inset-bottom); /* Врахування нижньої смуги iPhone */
         }
 
         .nav-item {
@@ -360,98 +341,56 @@
             color: var(--text-muted);
             font-size: 11px;
             font-weight: 600;
-            gap: 4px;
-            cursor: pointer;
+            gap: 2px;
         }
 
-        .nav-item.active {
-            color: var(--accent);
-        }
-
+        .nav-item.active { color: var(--accent); }
         .nav-item span { font-size: 18px; }
 
         /* ВХІДНЕ МОДАЛЬНЕ ВІКНО */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 7, 15, 0.96); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 20px; }
         .modal-card { background: var(--bg-panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 360px; border: 1px solid #374151; text-align: center; }
-        .modal-card h2 { margin-bottom: 20px; font-weight: 800; font-size: 20px; }
-        .modal-card .btn-primary { width: 100%; max-width: 100%; margin-top: 15px; }
+        .modal-card h2 { margin-bottom: 15px; font-weight: 800; font-size: 20px; }
 
-
-        /* 📱 АДАПТАЦІЯ ДЛЯ ТЕЛЕФОНІВ (Мобільні стилі замінюють стандартні) */
+        /* 📱 ВИНЕСЕННЯ СТИЛІВ ДЛЯ ПОВНОЇ АДАПТАЦІЇ НА ТЕЛЕФОНИ */
         @media (max-width: 992px) {
-            body {
-                padding-bottom: 65px; /* Залишає місце під мобільне меню */
-            }
+            .mobile-nav { display: grid; }
 
-            .mobile-nav {
-                display: grid;
-            }
-
-            /* Ховаємо панелі за межі екрану */
             .side-panel {
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                top: 0; left: 0; width: 100%; height: 100%;
                 transform: translateX(-100%);
                 border-right: none;
             }
 
             .chat-panel {
                 position: absolute;
-                top: 0;
-                right: 0;
-                width: 100%;
-                height: 100%;
+                top: 0; right: 0; width: 100%; height: 100%;
                 transform: translateX(100%);
                 border-left: none;
             }
 
-            /* Класи активації для перемикання табів */
-            .side-panel.active-tab {
+            .side-panel.active-tab, .chat-panel.active-tab {
                 transform: translateX(0);
             }
 
-            .chat-panel.active-tab {
-                transform: translateX(0);
-            }
-
-            /* Адаптація блоку відео */
             .local-video-wrapper { 
-                width: 90px; 
-                height: 125px; 
-                top: 60px; /* Опускаємо, щоб не перекривало інфо-плашку */
-                right: 12px; 
+                width: 85px; height: 115px; 
+                top: 70px; right: 12px; 
             }
 
-            .partner-info-overlay {
-                left: 12px;
-                top: 12px;
-                max-width: calc(100% - 24px);
-            }
-
-            .bottom-controls {
-                bottom: 16px;
-            }
+            .partner-info-overlay { left: 12px; top: 12px; }
+            .bottom-controls { bottom: 15px; }
         }
     </style>
 </head>
 <body>
 
-    <script>
-        // Захист: редірект на безпечний протокол
-        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
-            window.location.href = window.location.href.replace('http:', 'https:');
-        }
-    </script>
-
     <div class="app-wrapper">
         
-        <!-- ЛІВА ПАНЕЛЬ: ФІЛЬТРИ (На мобілці виїжджає ліворуч) -->
         <div class="side-panel" id="tabFilters">
             <div class="logo-area">
-                <h1>TalkNow Pro</h1>
+                <h1>TalkNow Dev</h1>
                 <div class="status-badge">
                     <div class="status-dot"></div>
                     <span>Online</span>
@@ -462,7 +401,7 @@
                 <div class="option-group">
                     <div class="section-title">Я шукаю</div>
                     <select id="searchGender">
-                        <option value="Всі">Дівчат та Хлопців 🌍</option>
+                        <option value="Всі">Всіх підряд 🌍</option>
                         <option value="Жінка">Тільки Дівчат 🙋‍♀️</option>
                         <option value="Чоловік">Тільки Хлопців 🙋‍♂️</option>
                     </select>
@@ -477,37 +416,40 @@
                 </div>
 
                 <div class="option-group">
-                    <div class="section-title">Мій вік</div>
-                    <input type="number" id="myAge" value="20" min="18" max="99">
-                </div>
-                
-                <div class="option-group" style="margin-top: auto;">
-                    <div class="section-title" style="text-align: center;">Мова</div>
-                    <select id="langSelect">
-                        <option value="uk">🇺🇦 Українська</option>
+                    <div class="section-title">Моя Країна</div>
+                    <select id="myCountry">
+                        <option value="🇺🇦 Україна">🇺🇦 Україна</option>
+                        <option value="🇺🇸 США">🇺🇸 США</option>
+                        <option value="🇵🇱 Польща">🇵🇱 Польща</option>
+                        <option value="🇩🇪 Німеччина">🇩🇪 Німеччина</option>
+                        <option value="🇬🇧 Велика Британія">🇬🇧 Велика Британія</option>
                     </select>
+                </div>
+
+                <div class="option-group">
+                    <div class="section-title">Мій вік</div>
+                    <input type="number" id="myAge" value="23" min="18" max="99">
                 </div>
             </div>
         </div>
 
-        <!-- ЦЕНТР: ЕКРАН ВІДЕОЧАТУ -->
         <div class="main-content" id="tabVideo">
             <div class="video-container">
-                <!-- Головне велике відео -->
                 <video id="remoteVideo" autoplay playsinline></video>
                 
-                <!-- Моє відео (Дзеркальне) -->
                 <div class="local-video-wrapper">
                     <video id="localVideo" autoplay playsinline muted></video>
                 </div>
 
-                <!-- Плашка з даними партнера -->
                 <div class="partner-info-overlay" id="partnerInfo">
-                    <span style="color: var(--text-muted)">Очікування пошуку...</span>
+                    <span>Натисніть кнопку пошуку... 🔎</span>
                 </div>
+
+                <div class="developer-badge" id="devBadge">DEVELOPER MODE</div>
+
+                <div class="dev-console" id="devConsole"></div>
             </div>
 
-            <!-- Нижні функціональні кнопки -->
             <div class="bottom-controls">
                 <button id="btnAudio" class="btn btn-circle" onclick="toggleAudio()">🎙️</button>
                 <button id="btnVideo" class="btn btn-circle" onclick="toggleVideo()">📹</button>
@@ -515,47 +457,38 @@
             </div>
         </div>
 
-        <!-- ПРАВА ПАНЕЛЬ: ТЕКСТОВИЙ ЧАТ (На мобілці виїжджає праворуч) -->
         <div class="chat-panel" id="tabChat">
             <div class="chat-header">
-                <span>Текстовий чат</span>
-                <span style="font-size: 12px; color: var(--accent);" id="chatStatus">вільний</span>
+                <span>Чат кімната</span>
+                <span style="font-size: 12px; color: var(--accent);" id="chatStatus">очікування</span>
             </div>
             
             <div class="chat-messages" id="chatMessages">
-                <div class="msg-block msg-system">Вітаємо у TalkNow! Натисніть кнопку «Наступний», щоб розпочати пошук.</div>
+                <div class="msg-block msg-system">Система готова. Секретний код розробника: AdminDeveloper</div>
             </div>
 
             <div class="chat-input-wrapper">
                 <input type="text" id="chatInput" placeholder="Повідомлення...">
-                <button class="btn btn-send" onclick="sendChatMessage()">➡️</button>
-            </div>
-        </div>
-
-        <!-- МУЛЬТИТАБ БАР ДЛЯ ТЕЛЕФОНІВ -->
-        <div class="mobile-nav">
-            <div class="nav-item" id="navItemFilters" onclick="switchMobileTab('filters')">
-                <span>⚙️</span>Фільтри
-            </div>
-            <div class="nav-item active" id="navItemVideo" onclick="switchMobileTab('video')">
-                <span>📹</span>Відео
-            </div>
-            <div class="nav-item" id="navItemChat" onclick="switchMobileTab('chat')">
-                <span>💬</span>Чат
+                <button class="btn btn-circle" style="border-radius: 12px; width:48px; height:48px; background:var(--bg-card);" onclick="sendChatMessage()">➡️</button>
             </div>
         </div>
 
     </div>
 
-    <!-- ВХІДНЕ ВІКНО КОРУСТУВАЧА -->
+    <div class="mobile-nav">
+        <div class="nav-item" id="navItemFilters" onclick="switchMobileTab('filters')"><span>⚙️</span>Фільтри</div>
+        <div class="nav-item active" id="navItemVideo" onclick="switchMobileTab('video')"><span>📹</span>Відео</div>
+        <div class="nav-item" id="navItemChat" onclick="switchMobileTab('chat')"><span>💬</span>Чат</div>
+    </div>
+
     <div class="modal" id="authModal">
         <div class="modal-card">
-            <h2>Вхід в чат</h2>
+            <h2>Реєстрація у чаті</h2>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Введіть `AdminDeveloper` для авторизації як Creator.</p>
             <div style="text-align: left; margin-bottom: 15px;">
-                <label style="font-size: 12px; color: var(--text-muted); display:block; margin-bottom:5px;">Ваш нікнейм</label>
-                <input type="text" id="usernameInput" value="Гість">
+                <input type="text" id="usernameInput" value="AdminDeveloper">
             </div>
-            <button class="btn btn-primary" onclick="closeAuthModal()">Увійти 🚀</button>
+            <button class="btn btn-primary" style="max-width:100%; width:100%;" onclick="closeAuthModal()">Увійти 🚀</button>
         </div>
     </div>
 
@@ -565,24 +498,30 @@
         let socket;
         let myId = Math.random().toString(36).substr(2, 9);
         let loggedInUser = null;
+        let isDeveloper = false;
 
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'turn:relay.metered.ca:80', username: 'openwebrtc', credential: 'openwebrtc_bypass' },
-                { urls: 'turn:relay.metered.ca:443', username: 'openwebrtc', credential: 'openwebrtc_bypass' }
+                { urls: 'stun:stun1.l.google.com:19302' }
             ] 
         };
 
-        // Функція перемикання вкладок на мобільному
+        // Функція логування для консолі розробника
+        function logDev(message) {
+            console.log(message);
+            if (isDeveloper) {
+                const consoleEl = document.getElementById('devConsole');
+                const time = new Date().toLocaleTimeString();
+                consoleEl.innerHTML += `<div>[${time}] ${message}</div>`;
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+        }
+
         function switchMobileTab(tabName) {
-            // Скидаємо активні класи зі вкладок навігації
             document.getElementById('navItemFilters').classList.remove('active');
             document.getElementById('navItemVideo').classList.remove('active');
             document.getElementById('navItemChat').classList.remove('active');
-
-            // Скидаємо класи відображення панелей
             document.getElementById('tabFilters').classList.remove('active-tab');
             document.getElementById('tabChat').classList.remove('active-tab');
 
@@ -599,12 +538,24 @@
 
         function closeAuthModal() {
             const name = document.getElementById('usernameInput').value.trim() || "Гість";
+            
+            // ПЕРЕВІРКА НА СТАТУС РОЗРОБНИКА
+            if (name === "AdminDeveloper") {
+                isDeveloper = true;
+                document.getElementById('devBadge').style.display = 'block';
+                document.getElementById('devConsole').style.display = 'block';
+                logDev("Режим розробника активовано успішно.");
+            }
+
             loggedInUser = {
-                name: name,
+                name: isDeveloper ? "👑 Розробник" : name,
                 gender: document.getElementById('myGender').value,
                 age: document.getElementById('myAge').value,
-                searchGender: document.getElementById('searchGender').value
+                country: document.getElementById('myCountry').value,
+                searchGender: document.getElementById('searchGender').value,
+                isDev: isDeveloper
             };
+
             document.getElementById('authModal').style.display = 'none';
             initWebSocket(loggedInUser);
         }
@@ -613,8 +564,10 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
+                logDev("Камеру та мікрофон активовано.");
             } catch (e) { 
-                appendSystemMessage(`Доступ заблоковано! Будь ласка, дозвольте роботу камери та мікрофона в налаштуваннях браузера.`, true);
+                logDev(`Критична помилка камери: ${e.name}`);
+                appendSystemMessage(`Дозвольте доступ до камери/мікрофона та використовуйте HTTPS!`, true);
             }
         }
 
@@ -623,30 +576,32 @@
             socket = new WebSocket(`${protocol}//${window.location.host}`);
 
             socket.onopen = () => {
+                logDev("WebSocket з'єднання встановлено з сервером Render.");
                 socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
             };
 
             socket.onmessage = async (message) => {
                 const data = JSON.parse(message.data);
+                logDev(`Отримано WebSocket пакет: ${data.type}`);
 
                 if (data.type === 'waiting') {
-                    document.getElementById('partnerInfo').innerHTML = `<span style="color:var(--accent)">Пошук вільної пари... 🔍</span>`;
-                    document.getElementById('chatStatus').innerText = "пошук...";
+                    document.getElementById('partnerInfo').innerHTML = `<span>Пошук активних користувачів... 🔍</span>`;
+                    document.getElementById('chatStatus').innerText = "у пошуку";
                 }
 
                 if (data.type === 'connected') {
                     const p = data.partnerProfile;
-                    document.getElementById('partnerInfo').innerHTML = `<strong>${p.name}, ${p.age} (${p.gender})</strong>`;
-                    document.getElementById('chatStatus').innerText = "у мережі";
-                    appendSystemMessage(`З'єднано з користувачем: ${p.name}`);
-                    
-                    // При з'єднанні автоматично повертаємо користувача на вкладку відео
+                    // Виведення даних разом із обраною країною
+                    document.getElementById('partnerInfo').innerHTML = `<span>${p.country} <strong>${p.name}, ${p.age} р.</strong></span>`;
+                    document.getElementById('chatStatus').innerText = "з'єднано";
+                    appendSystemMessage(`З'єднано з: ${p.name} (${p.country})`);
                     switchMobileTab('video');
                     startCall(true);
                 }
 
                 if (data.type === 'partner_disconnected') {
-                    appendSystemMessage("Співрозмовник залишив чат.");
+                    logDev("Співрозмовник раптово відключився.");
+                    appendSystemMessage("Співрозмовник залишив кімнату.");
                     closeCall();
                 }
 
@@ -677,6 +632,7 @@
         }
 
         async function startCall(isCaller) {
+            logDev(`Ініціалізація WebRTC сесії (Caller: ${isCaller})`);
             peerConnection = new RTCPeerConnection(configuration);
             
             if (localStream) {
@@ -684,6 +640,7 @@
             }
 
             peerConnection.ontrack = (event) => {
+                logDev("Отримано віддалений WebRTC медіа-потік.");
                 if (event.streams && event.streams[0]) {
                     document.getElementById('remoteVideo').srcObject = event.streams[0];
                 }
@@ -737,6 +694,7 @@
                 loggedInUser.searchGender = document.getElementById('searchGender').value;
                 loggedInUser.gender = document.getElementById('myGender').value;
                 loggedInUser.age = document.getElementById('myAge').value;
+                loggedInUser.country = document.getElementById('myCountry').value;
                 
                 socket.send(JSON.stringify({ type: 'next', profile: loggedInUser }));
                 switchMobileTab('video');
@@ -746,7 +704,7 @@
         function closeCall() {
             if (peerConnection) { peerConnection.close(); peerConnection = null; }
             document.getElementById('remoteVideo').srcObject = null;
-            document.getElementById('partnerInfo').innerHTML = `<span style="color: var(--text-muted)">Очікування пошуку...</span>`;
+            document.getElementById('partnerInfo').innerHTML = `<span>Очікування нового пошуку... 🔎</span>`;
         }
 
         function toggleAudio() {
@@ -755,7 +713,6 @@
             if (track) {
                 track.enabled = !track.enabled;
                 document.getElementById('btnAudio').classList.toggle('off', !track.enabled);
-                document.getElementById('btnAudio').innerText = track.enabled ? "🎙️" : "🔇";
             }
         }
 
@@ -765,11 +722,13 @@
             if (track) {
                 track.enabled = !track.enabled;
                 document.getElementById('btnVideo').classList.toggle('off', !track.enabled);
-                document.getElementById('btnVideo').innerText = track.enabled ? "📹" : "🚫";
             }
         }
 
         initCamera();
+        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+            window.location.href = window.location.href.replace('http:', 'https:');
+        }
         document.getElementById('chatInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     </script>
 </body>
