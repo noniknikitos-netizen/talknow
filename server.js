@@ -9,38 +9,11 @@ const wss = new WebSocket.Server({ server });
 
 app.use(express.static(path.join(__dirname)));
 
-// База даних акаунтів прямо на сервері (тимчасова, в пам'яті)
-let usersDatabase = {};
 let waitingUsers = [];
 
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         const data = JSON.parse(message);
-
-        // Обробка реєстрації
-        if (data.type === 'register_account') {
-            const profile = data.profile;
-            usersDatabase[profile.name] = {
-                name: profile.name,
-                password: data.password,
-                gender: profile.gender,
-                age: profile.age,
-                about: profile.about,
-                customSetting: profile.customSetting || "",
-                avatar: profile.avatar
-            };
-            ws.send(JSON.stringify({ type: 'auth_success', profile: usersDatabase[profile.name] }));
-        }
-
-        // Обробка входу
-        if (data.type === 'login_account') {
-            const user = usersDatabase[data.name];
-            if (user && user.password === data.password) {
-                ws.send(JSON.stringify({ type: 'auth_success', profile: user }));
-            } else {
-                ws.send(JSON.stringify({ type: 'auth_fail', reason: 'Невірний логін або пароль' }));
-            }
-        }
 
         if (data.type === 'join') {
             ws.userId = data.userId;
