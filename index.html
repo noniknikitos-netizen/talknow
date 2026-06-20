@@ -166,8 +166,8 @@
         #localVideo {
             width: 100%;
             height: 100%;
+            /* Виправлено: об'єкт підганяється автоматично під пропорції екрану смартфона */
             object-fit: cover;
-            transform: scaleX(-1);
         }
 
         .partner-info-overlay {
@@ -310,7 +310,7 @@
         .nav-item.active { color: var(--accent); }
         .nav-item span { font-size: 18px; }
 
-        /* ВХІДНЕ МОДАЛЬНЕ ВІКНО */
+        /* МОДАЛКА ВХОДУ */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 7, 15, 0.96); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 20px; }
         .modal-card { background: var(--bg-panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 360px; border: 1px solid #374151; text-align: center; }
         .modal-card h2 { margin-bottom: 15px; font-weight: 800; font-size: 20px; }
@@ -449,7 +449,6 @@
         let myId = Math.random().toString(36).substr(2, 9);
         let loggedInUser = null;
 
-        // Покращена глобальна конфігурація WebRTC (Використовуємо стабільні STUN сервери від Google + Anyfirewall)
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -481,7 +480,6 @@
         function closeAuthModal() {
             const name = document.getElementById('usernameInput').value.trim() || "Гість";
             
-            // Фікс політики автоплею звуку в мобільних браузерах (Safari, Chrome)
             try { window.AudioContext = window.AudioContext || window.webkitAudioContext; new AudioContext(); } catch(e){}
 
             loggedInUser = {
@@ -498,9 +496,14 @@
 
         async function initCamera() {
             try {
-                // Оптимальні параметри запиту камери для швидкого підвантаження на смартфонах
+                // Виправлено: чітко вказуємо facingMode: "user" (передню камеру) для уникнення перевертання
                 localStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } }, 
+                    video: { 
+                        facingMode: "user",
+                        width: { ideal: 640 }, 
+                        height: { ideal: 480 }, 
+                        frameRate: { ideal: 24 } 
+                    }, 
                     audio: true 
                 });
                 document.getElementById('localVideo').srcObject = localStream;
@@ -573,12 +576,10 @@
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             }
 
-            // Надійна обробка віддаленого потоку відео/аудіо
             peerConnection.ontrack = (event) => {
                 const remoteVideo = document.getElementById('remoteVideo');
                 if (event.streams && event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
-                    // Примусовий запуск відтворення (критично для iOS)
                     remoteVideo.play().catch(err => console.log(`Автоплей відхилено: ${err}`));
                 }
             };
@@ -589,7 +590,6 @@
                 }
             };
 
-            // Автоматичний ICE-перезапуск у разі падіння мережі
             peerConnection.oniceconnectionstatechange = () => {
                 if (peerConnection.iceConnectionState === 'failed' || peerConnection.iceConnectionState === 'disconnected') {
                     if (isCaller) {
@@ -668,7 +668,6 @@
 
         initCamera();
         
-        // Автоматичний редірект на HTTPS (без нього мобільна камера ніколи не запуститься)
         if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
             window.location.href = window.location.href.replace('http:', 'https:');
         }
