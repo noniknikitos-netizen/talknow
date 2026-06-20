@@ -49,7 +49,6 @@
         .circle-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; background: #334155; }
         .circle-btn.off { background: var(--danger); }
 
-        /* Модальні вікна */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.96); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 15px; }
         .modal-card { background: var(--bg-card); padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; border: 1px solid #475569; max-height: 95vh; overflow-y: auto; position: relative; }
         
@@ -162,6 +161,10 @@
                     <label>Про себе</label>
                     <textarea id="aboutInput" placeholder="Хобі, інтереси, що шукаєте..."></textarea>
                 </div>
+                <div class="input-group">
+                    <label>Пункт від себе (Додатково)</label>
+                    <input type="text" id="customInput" placeholder="Наприклад: Місто, статус тощо">
+                </div>
             </div>
 
             <div class="captcha-box">
@@ -194,12 +197,16 @@
                 <input type="text" id="settName">
             </div>
             <div class="input-group">
-                <label>Змінити пароль</label>
-                <input type="password" id="settPassword" placeholder="Новий пароль">
+                <label>Пароль</label>
+                <input type="password" id="settPassword" placeholder="Змінити пароль">
             </div>
             <div class="input-group">
                 <label>Про себе</label>
                 <textarea id="settAbout"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Пункт від себе</label>
+                <input type="text" id="settCustom">
             </div>
 
             <button class="primary" style="width: 100%; padding: 10px; margin-bottom: 10px;" onclick="saveSettingsChanges()">Зберегти зміни</button>
@@ -211,7 +218,7 @@
         const translations = {
             uk: { lblMe: "Я", lblPartner: "Співрозмовник", btnNext: "Наступний ➡️", tabLogin: "Вхід", tabRegister: "Реєстрація", badCaptcha: "Невірний код капчі!", alert18: "Вхід дозволено лише особам від 18 років!", badLogin: "Невірний логін або пароль!" },
             en: { lblMe: "Me", lblPartner: "Partner", btnNext: "Next ➡️", tabLogin: "Login", tabRegister: "Register", badCaptcha: "Invalid captcha!", alert18: "Access allowed only for 18+!", badLogin: "Wrong username or password!" },
-            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Следующий ➡️", tabLogin: "Вход", tabRegister: "Регистрация", badCaptcha: "Неверный код капчи!", alert18: "Вход разрешен только с 18 лет!", badLogin: "Неверный логин или password!" }
+            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Следующий ➡️", tabLogin: "Вход", tabRegister: "Регистрация", badCaptcha: "Неверный код капчи!", alert18: "Вход разрешен только с 18 лет!", badLogin: "Неверный логин или пароль!" }
         };
 
         let currentLang = 'uk';
@@ -222,14 +229,15 @@
         let myAvatarData = "";
         let authMode = "login";
         let generatedCaptcha = "";
+        let currentProfile = null;
 
-        // СПЕЦІАЛЬНІ ПУБЛІЧНІ TURN СЕРВЕРИ ДЛЯ ПРОБИТТЯ БУДЬ-ЯКОГО ІНТЕРНЕТУ МІЖ ПК ТА ТЕЛЕФОНОМ
+        // Потужні WebRTC ICE сервери для 100% передачі звуку та відео через будь-який інтернет
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'turn:turn.bistri.com:80', username: 'bistri', credential: 'bistri' },
-                { urls: 'turn:anyfirewall.com:3478', username: 'anyfirewall', credential: 'anyfirewall' }
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'turn:relay.metered.ca:443', username: 'openwebrtc', credential: 'openwebrtc_bypass' }
             ] 
         };
 
@@ -256,8 +264,9 @@
         }
 
         function checkLocalStorage() {
-            const saved = localStorage.getItem('talknow_account');
-            if (saved) {
+            const lastUser = localStorage.getItem('talknow_last_logged');
+            if (lastUser) {
+                document.getElementById('usernameInput').value = lastUser;
                 setAuthMode('login');
             } else {
                 setAuthMode('register');
@@ -275,40 +284,49 @@
             const pass = document.getElementById('passwordInput').value;
             const age = parseInt(document.getElementById('ageInput').value);
 
+            if (!name || !pass) {
+                alert("Заповніть логін та пароль!");
+                return;
+            }
+
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                initWebSocket(() => proceedAuth(name, pass, age));
+            } else {
+                proceedAuth(name, pass, age);
+            }
+        }
+
+        function proceedAuth(name, pass, age) {
             if (authMode === 'register') {
                 if (age < 18 || isNaN(age)) {
                     alert(translations[currentLang].alert18);
                     return;
                 }
-                const account = {
-                    name: name || "Анонім", password: pass, age: age,
-                    gender: document.getElementById('genderInput').value,
-                    about: document.getElementById('aboutInput').value, avatar: myAvatarData
+                const profile = {
+                    name: name, gender: document.getElementById('genderInput').value,
+                    age: age, about: document.getElementById('aboutInput').value,
+                    customSetting: document.getElementById('customInput').value, avatar: myAvatarData
                 };
-                localStorage.setItem('talknow_account', JSON.stringify(account));
-                enterChat(account);
+                socket.send(JSON.stringify({ type: 'register_account', password: pass, profile: profile }));
             } else {
-                const saved = JSON.parse(localStorage.getItem('talknow_account'));
-                if (saved && saved.name === name && saved.password === pass) {
-                    enterChat(saved);
-                } else {
-                    alert(translations[currentLang].badLogin);
-                }
+                socket.send(JSON.stringify({ type: 'login_account', name: name, password: pass }));
             }
         }
 
-        function enterChat(account) {
+        function enterChat(profile) {
+            currentProfile = profile;
+            localStorage.setItem('talknow_last_logged', profile.name);
             document.getElementById('authModal').style.display = 'none';
-            initWebSocket(account);
+            socket.send(JSON.stringify({ type: 'join', userId: myId, profile: currentProfile }));
         }
 
         function openSettings() {
-            const saved = JSON.parse(localStorage.getItem('talknow_account'));
-            if (!saved) return;
-            document.getElementById('settName').value = saved.name;
-            document.getElementById('settPassword').value = saved.password;
-            document.getElementById('settAbout').value = saved.about || "";
-            document.getElementById('settingsAvatarImg').src = saved.avatar || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>";
+            if (!currentProfile) return;
+            document.getElementById('settName').value = currentProfile.name;
+            document.getElementById('settPassword').value = currentProfile.password || "";
+            document.getElementById('settAbout').value = currentProfile.about || "";
+            document.getElementById('settCustom').value = currentProfile.customSetting || "";
+            document.getElementById('settingsAvatarImg').src = currentProfile.avatar || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>";
             document.getElementById('settingsModal').style.display = 'flex';
         }
 
@@ -317,28 +335,30 @@
         }
 
         function saveSettingsChanges() {
-            const saved = JSON.parse(localStorage.getItem('talknow_account'));
-            saved.name = document.getElementById('settName').value;
-            saved.password = document.getElementById('settPassword').value;
-            saved.about = document.getElementById('settAbout').value;
-            saved.avatar = document.getElementById('settingsAvatarImg').src;
-            localStorage.setItem('talknow_account', JSON.stringify(saved));
+            if (!currentProfile) return;
+            currentProfile.name = document.getElementById('settName').value;
+            const newPass = document.getElementById('settPassword').value;
+            currentProfile.about = document.getElementById('settAbout').value;
+            currentProfile.customSetting = document.getElementById('settCustom').value;
+            currentProfile.avatar = document.getElementById('settingsAvatarImg').src;
+
+            socket.send(JSON.stringify({ type: 'register_account', password: newPass, profile: currentProfile }));
             closeSettings();
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: saved }));
-            }
         }
 
         function logout() {
-            localStorage.removeItem('talknow_account');
+            localStorage.removeItem('talknow_last_logged');
             location.reload();
         }
 
+        // ОБОВ'ЯЗКОВИЙ ЗАПИТ НА КАМЕРУ ТА МІКРОФОН (AUDIO: TRUE)
         async function initCamera() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
-            } catch (e) { alert("Будь ласка, дозвольте доступ до камери та мікрофона."); }
+            } catch (e) { 
+                alert("Помилка! Дозвольте доступ до камери та МІКРОФОНА у браузері, щоб спілкуватися."); 
+            }
         }
 
         function toggleAudio() {
@@ -378,16 +398,25 @@
             document.getElementById(targetImgId).src = myAvatarData;
         }
 
-        function initWebSocket(profile) {
+        function initWebSocket(onOpenCallback) {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             socket = new WebSocket(`${protocol}//${window.location.host}`);
 
             socket.onopen = () => {
-                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
+                if (onOpenCallback) onOpenCallback();
             };
 
             socket.onmessage = async (message) => {
                 const data = JSON.parse(message.data);
+
+                if (data.type === 'auth_success') {
+                    enterChat(data.profile);
+                }
+
+                if (data.type === 'auth_fail') {
+                    alert(data.reason);
+                    generateCaptcha();
+                }
 
                 if (data.type === 'waiting') {
                     document.getElementById('lblPartner').innerText = "Шукаємо когось цікавого...";
@@ -395,13 +424,18 @@
 
                 if (data.type === 'connected') {
                     const p = data.partnerProfile;
-                    document.getElementById('lblPartner').innerHTML = `<strong>${p.name} (${p.gender}, ${p.age} р.)</strong><br><small style="color:var(--text-muted)">${p.about || 'Без опису'}</small>`;
+                    // Відображаємо всі дані користувача, включно з "пунктом від себе"
+                    document.getElementById('lblPartner').innerHTML = `
+                        <strong>${p.name} (${p.gender}, ${p.age} р.)</strong><br>
+                        <small style="color:#a5b4fc; font-weight:bold;">${p.customSetting ? '📌 ' + p.customSetting : ''}</small><br>
+                        <small style="color:var(--text-muted)">${p.about || 'Без опису'}</small>
+                    `;
                     appendChatMessage("Система", `Ви підключилися до ${p.name}!`);
                     startCall(true);
                 }
 
                 if (data.type === 'partner_disconnected') {
-                    appendChatMessage("Система", "Співрозмовник вийшов.");
+                    appendChatMessage("Система", "Співрозмовник вийшок.");
                     closeCall();
                 }
 
@@ -434,6 +468,7 @@
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
             peerConnection.ontrack = (event) => {
+                // ПІДКЛЮЧЕННЯ ВІДЕО ТА ЗВУКУ СПІВРОЗМОВНИКА
                 document.getElementById('remoteVideo').srcObject = event.streams[0];
             };
 
