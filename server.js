@@ -26,6 +26,12 @@ wss.on('connection', (ws) => {
             findPartner(ws);
         }
 
+        if (data.type === 'message') {
+            if (ws.partner && ws.partner.readyState === WebSocket.OPEN) {
+                ws.partner.send(JSON.stringify({ type: 'chat_message', text: data.text }));
+            }
+        }
+
         if (data.type === 'offer' || data.type === 'answer' || data.type === 'candidate') {
             if (ws.partner && ws.partner.readyState === WebSocket.OPEN) {
                 ws.partner.send(JSON.stringify(data));
@@ -40,7 +46,6 @@ wss.on('connection', (ws) => {
 });
 
 function findPartner(ws) {
-    // Шукаємо партнера, який не є поточним користувачем
     const partner = waitingUsers.find(user => user !== ws && user.readyState === WebSocket.OPEN);
 
     if (partner) {
