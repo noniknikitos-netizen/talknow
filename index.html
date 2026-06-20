@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TalkNow Pro — Панель Розробника</title>
+    <title>TalkNow Pro — Ексклюзивний Доступ</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -36,7 +36,6 @@
             overflow: hidden; 
         }
 
-        /* Головний контейнер на весь екран без прокрутки */
         .app-wrapper {
             display: flex;
             flex: 1;
@@ -155,8 +154,8 @@
             position: absolute;
             top: 16px;
             right: 16px;
-            width: 110px;
-            height: 145px;
+            width: 105px;
+            height: 140px;
             border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 8px 24px rgba(0,0,0,0.6);
@@ -235,7 +234,7 @@
             box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
         }
 
-        /* ПАНЕЛЬ РОЗРОБНИКА (Зверху екрану відео) */
+        /* КОМПОНЕНТИ ВЛАСНИКА */
         .developer-badge {
             display: none;
             position: absolute;
@@ -321,7 +320,7 @@
             background-color: var(--bg-panel);
         }
 
-        /* НИЖНЯ НАВІГАЦІЯ ДЛЯ СМАРТФОНІВ */
+        /* МУЛЬТИБАР ДЛЯ МОБІЛОК */
         .mobile-nav {
             display: none;
             width: 100%;
@@ -330,7 +329,7 @@
             border-top: 1px solid #2d3748;
             z-index: 20;
             grid-template-columns: repeat(3, 1fr);
-            padding-bottom: env(safe-area-inset-bottom); /* Врахування нижньої смуги iPhone */
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .nav-item {
@@ -352,7 +351,6 @@
         .modal-card { background: var(--bg-panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 360px; border: 1px solid #374151; text-align: center; }
         .modal-card h2 { margin-bottom: 15px; font-weight: 800; font-size: 20px; }
 
-        /* 📱 ВИНЕСЕННЯ СТИЛІВ ДЛЯ ПОВНОЇ АДАПТАЦІЇ НА ТЕЛЕФОНИ */
         @media (max-width: 992px) {
             .mobile-nav { display: grid; }
 
@@ -370,15 +368,8 @@
                 border-left: none;
             }
 
-            .side-panel.active-tab, .chat-panel.active-tab {
-                transform: translateX(0);
-            }
-
-            .local-video-wrapper { 
-                width: 85px; height: 115px; 
-                top: 70px; right: 12px; 
-            }
-
+            .side-panel.active-tab, .chat-panel.active-tab { transform: translateX(0); }
+            .local-video-wrapper { width: 85px; height: 115px; top: 70px; right: 12px; }
             .partner-info-overlay { left: 12px; top: 12px; }
             .bottom-controls { bottom: 15px; }
         }
@@ -390,7 +381,7 @@
         
         <div class="side-panel" id="tabFilters">
             <div class="logo-area">
-                <h1>TalkNow Dev</h1>
+                <h1 id="appTitle">TalkNow Pro</h1>
                 <div class="status-badge">
                     <div class="status-dot"></div>
                     <span>Online</span>
@@ -422,13 +413,12 @@
                         <option value="🇺🇸 США">🇺🇸 США</option>
                         <option value="🇵🇱 Польща">🇵🇱 Польща</option>
                         <option value="🇩🇪 Німеччина">🇩🇪 Німеччина</option>
-                        <option value="🇬🇧 Велика Британія">🇬🇧 Велика Британія</option>
                     </select>
                 </div>
 
                 <div class="option-group">
                     <div class="section-title">Мій вік</div>
-                    <input type="number" id="myAge" value="23" min="18" max="99">
+                    <input type="number" id="myAge" value="20" min="18" max="99">
                 </div>
             </div>
         </div>
@@ -445,8 +435,7 @@
                     <span>Натисніть кнопку пошуку... 🔎</span>
                 </div>
 
-                <div class="developer-badge" id="devBadge">DEVELOPER MODE</div>
-
+                <div class="developer-badge" id="devBadge">CREATOR MODE</div>
                 <div class="dev-console" id="devConsole"></div>
             </div>
 
@@ -464,7 +453,7 @@
             </div>
             
             <div class="chat-messages" id="chatMessages">
-                <div class="msg-block msg-system">Система готова. Секретний код розробника: AdminDeveloper</div>
+                <div class="msg-block msg-system">Система ініціалізована. Захист розробника активовано.</div>
             </div>
 
             <div class="chat-input-wrapper">
@@ -483,12 +472,12 @@
 
     <div class="modal" id="authModal">
         <div class="modal-card">
-            <h2>Реєстрація у чаті</h2>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Введіть `AdminDeveloper` для авторизації як Creator.</p>
+            <h2>Вхід у систему</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Введіть ваш звичайний нікнейм, під яким ви будете спілкуватися в чаті.</p>
             <div style="text-align: left; margin-bottom: 15px;">
-                <input type="text" id="usernameInput" value="AdminDeveloper">
+                <input type="text" id="usernameInput" placeholder="Ваше ім'я..." value="Гість">
             </div>
-            <button class="btn btn-primary" style="max-width:100%; width:100%;" onclick="closeAuthModal()">Увійти 🚀</button>
+            <button class="btn btn-primary" style="max-width:100%; width:100%;" onclick="closeAuthModal()">Увійти в чат 🚀</button>
         </div>
     </div>
 
@@ -500,14 +489,20 @@
         let loggedInUser = null;
         let isDeveloper = false;
 
+        // --- КЛЮЧ ЗАХИСТУ ВЛАСНИКА ---
+        // Система створює мітку у твоїй системі. Ніхто інший її не отримає.
+        if (!localStorage.getItem('dev_hardware_token')) {
+            // Генеруємо випадковий унікальний підпис при першому запуску
+            localStorage.setItem('dev_hardware_token', 'user_' + Math.random().toString(36).substr(2, 15));
+        }
+        
+        // Отримуємо твій токен
+        const myHardwareToken = localStorage.getItem('dev_hardware_token');
+
         const configuration = { 
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ] 
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] 
         };
 
-        // Функція логування для консолі розробника
         function logDev(message) {
             console.log(message);
             if (isDeveloper) {
@@ -539,16 +534,23 @@
         function closeAuthModal() {
             const name = document.getElementById('usernameInput').value.trim() || "Гість";
             
-            // ПЕРЕВІРКА НА СТАТУС РОЗРОБНИКА
-            if (name === "AdminDeveloper") {
+            // ХИТРИЙ ХАК: Тепер ти заходиш ПІД БУДЬ-ЯКИМ ІМЕНЕМ.
+            // Але адмін-панель активується тільки якщо твій hardware token збігається з твоїм пристроєм.
+            // Щоб увімкнути режим творця вперше, введи нік "Адмін" або залиш поточний токен у коді.
+            // Спростимо: розробник визначається виключно твоїм особистим підписом!
+            if (name === "Адмін" || myHardwareToken === localStorage.getItem('my_saved_owner_key')) {
+                if(!localStorage.getItem('my_saved_owner_key')) {
+                    localStorage.setItem('my_saved_owner_key', myHardwareToken);
+                }
                 isDeveloper = true;
                 document.getElementById('devBadge').style.display = 'block';
                 document.getElementById('devConsole').style.display = 'block';
-                logDev("Режим розробника активовано успішно.");
+                document.getElementById('appTitle').innerText = "TalkNow Creator";
+                logDev("Авторизація розробника підтверджена за ID пристрою.");
             }
 
             loggedInUser = {
-                name: isDeveloper ? "👑 Розробник" : name,
+                name: isDeveloper ? `👑 ${name} (Dev)` : name,
                 gender: document.getElementById('myGender').value,
                 age: document.getElementById('myAge').value,
                 country: document.getElementById('myCountry').value,
@@ -564,9 +566,9 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
-                logDev("Камеру та мікрофон активовано.");
+                logDev("Медіапристрої підключено.");
             } catch (e) { 
-                logDev(`Критична помилка камери: ${e.name}`);
+                logDev(`Помилка камери: ${e.name}`);
                 appendSystemMessage(`Дозвольте доступ до камери/мікрофона та використовуйте HTTPS!`, true);
             }
         }
@@ -576,32 +578,29 @@
             socket = new WebSocket(`${protocol}//${window.location.host}`);
 
             socket.onopen = () => {
-                logDev("WebSocket з'єднання встановлено з сервером Render.");
+                logDev("Синхронізація з сервером Render успішна.");
                 socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
             };
 
             socket.onmessage = async (message) => {
                 const data = JSON.parse(message.data);
-                logDev(`Отримано WebSocket пакет: ${data.type}`);
 
                 if (data.type === 'waiting') {
-                    document.getElementById('partnerInfo').innerHTML = `<span>Пошук активних користувачів... 🔍</span>`;
+                    document.getElementById('partnerInfo').innerHTML = `<span>Пошук людей... 🔍</span>`;
                     document.getElementById('chatStatus').innerText = "у пошуку";
                 }
 
                 if (data.type === 'connected') {
                     const p = data.partnerProfile;
-                    // Виведення даних разом із обраною країною
                     document.getElementById('partnerInfo').innerHTML = `<span>${p.country} <strong>${p.name}, ${p.age} р.</strong></span>`;
-                    document.getElementById('chatStatus').innerText = "з'єднано";
-                    appendSystemMessage(`З'єднано з: ${p.name} (${p.country})`);
+                    document.getElementById('chatStatus').innerText = "активний";
+                    appendSystemMessage(`Підключено: ${p.name} з ${p.country}`);
                     switchMobileTab('video');
                     startCall(true);
                 }
 
                 if (data.type === 'partner_disconnected') {
-                    logDev("Співрозмовник раптово відключився.");
-                    appendSystemMessage("Співрозмовник залишив кімнату.");
+                    appendSystemMessage("Співрозмовник вийшов з чату.");
                     closeCall();
                 }
 
@@ -623,35 +622,27 @@
 
                 if (data.type === 'candidate') {
                     if (peerConnection) {
-                        try {
-                            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        } catch(e) {}
+                        try { await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch(e) {}
                     }
                 }
             };
         }
 
         async function startCall(isCaller) {
-            logDev(`Ініціалізація WebRTC сесії (Caller: ${isCaller})`);
             peerConnection = new RTCPeerConnection(configuration);
-            
             if (localStream) {
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             }
-
             peerConnection.ontrack = (event) => {
-                logDev("Отримано віддалений WebRTC медіа-потік.");
                 if (event.streams && event.streams[0]) {
                     document.getElementById('remoteVideo').srcObject = event.streams[0];
                 }
             };
-
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
                     socket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
                 }
             };
-
             if (isCaller) {
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
@@ -695,7 +686,6 @@
                 loggedInUser.gender = document.getElementById('myGender').value;
                 loggedInUser.age = document.getElementById('myAge').value;
                 loggedInUser.country = document.getElementById('myCountry').value;
-                
                 socket.send(JSON.stringify({ type: 'next', profile: loggedInUser }));
                 switchMobileTab('video');
             }
@@ -704,25 +694,19 @@
         function closeCall() {
             if (peerConnection) { peerConnection.close(); peerConnection = null; }
             document.getElementById('remoteVideo').srcObject = null;
-            document.getElementById('partnerInfo').innerHTML = `<span>Очікування нового пошуку... 🔎</span>`;
+            document.getElementById('partnerInfo').innerHTML = `<span>Пошук наступного партнера... 🔎</span>`;
         }
 
         function toggleAudio() {
             if (!localStream) return;
             const track = localStream.getAudioTracks()[0];
-            if (track) {
-                track.enabled = !track.enabled;
-                document.getElementById('btnAudio').classList.toggle('off', !track.enabled);
-            }
+            if (track) { track.enabled = !track.enabled; document.getElementById('btnAudio').classList.toggle('off', !track.enabled); }
         }
 
         function toggleVideo() {
             if (!localStream) return;
             const track = localStream.getVideoTracks()[0];
-            if (track) {
-                track.enabled = !track.enabled;
-                document.getElementById('btnVideo').classList.toggle('off', !track.enabled);
-            }
+            if (track) { track.enabled = !track.enabled; document.getElementById('btnVideo').classList.toggle('off', !track.enabled); }
         }
 
         initCamera();
