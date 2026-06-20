@@ -69,6 +69,13 @@
 </head>
 <body>
 
+    <script>
+        // АВТОМАТИЧНИЙ РЕДІРЕКТ НА HTTPS ДЛЯ СЕРВЕРІВ ТИПУ RENDER
+        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+            window.location.href = window.location.href.replace('http:', 'https:');
+        }
+    </script>
+
     <header>
         <h1>TalkNow Pro</h1>
         <div class="controls-top">
@@ -209,7 +216,6 @@
         let generatedCaptcha = "";
         let loggedInUser = null;
 
-        // Додано перевірені безкоштовні TURN та STUN сервери для пробиття NAT мобільних операторів
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -350,12 +356,15 @@
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
+                appendChatMessage("Система", "Камера та мікрофон успішно підключені!");
             } catch (e) { 
-                alert("Будь ласка, дозвольте доступ до камери та мікрофона у браузері!");
+                // Виводимо детальну помилку прямо на екран чату
+                appendChatMessage("Помилка камери", `Не вдалося отримати доступ: ${e.name}. Перевірте дозволи у налаштуваннях пристрою/браузера та переконайтеся, що протокол безпечний (HTTPS)!`);
             }
         }
 
         function toggleAudio() {
+            if (!localStream) return;
             const track = localStream.getAudioTracks()[0];
             if (track) {
                 track.enabled = !track.enabled;
@@ -365,6 +374,7 @@
         }
 
         function toggleVideo() {
+            if (!localStream) return;
             const track = localStream.getVideoTracks()[0];
             if (track) {
                 track.enabled = !track.enabled;
@@ -383,6 +393,7 @@
         }
 
         function snapAvatar(targetImgId) {
+            if (!localStream) return;
             const video = document.getElementById('localVideo');
             const canvas = document.createElement('canvas');
             canvas.width = 150; canvas.height = 150;
@@ -448,7 +459,6 @@
         async function startCall(isCaller) {
             peerConnection = new RTCPeerConnection(configuration);
             
-            // Важливо: Прикріплюємо треки ДО створення оферу, щоб вони потрапили у з'єднання
             if (localStream) {
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             }
