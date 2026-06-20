@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkNow Pro</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #6366f1; --text: #f8fafc; --muted: #94a3b8; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; background: var(--bg); border: 1px solid #334155; color: white; border-radius: 8px; font-size: 1rem; }
+        .btn { width: 100%; padding: 12px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-bottom: 10px; font-size: 1rem; }
+        .btn:hover { background: #4f46e5; }
+        .btn-alt { background: transparent; color: var(--muted); border: 1px solid #334155; }
+        .btn-danger { background: #ef4444; }
+
+        /* Авторизація */
+        .auth-container { background: var(--card); padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+        /* Мова вгорі */
+        .lang-select-top { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+        .lang-select-top select { width: auto; padding: 5px; margin: 0; font-size: 0.85rem; }
+
+        /* Головний екран (Адаптивна сітка) */
+        .app-container { display: none; width: 100%; max-width: 1200px; grid-template-columns: 1fr 350px; gap: 15px; height: 90vh; }
+        
+        /* Верхня панель додатку */
+        .app-header { grid-column: span 2; background: var(--card); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .settings-icon-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center; }
+        .settings-icon-btn svg { width: 28px; height: 28px; fill: var(--text); transition: transform 0.3s; }
+        .settings-icon-btn svg:hover { transform: rotate(45deg); fill: var(--accent); }
+
+        /* Відео Блок */
+        .video-block { background: var(--card); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; height: 100%; }
+        .video-grid { flex-grow: 1; background: #020617; border-radius: 8px; position: relative; overflow: hidden; min-height: 250px; }
+        .remote-video-stream { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        .local-video-stream { position: absolute; bottom: 15px; right: 15px; width: 90px; height: 120px; background: #1e293b; border-radius: 8px; border: 2px solid var(--accent); overflow: hidden; }
+
+        /* Чат */
+        .chat-block { background: var(--card); border-radius: 12px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .messages-area { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; height: 150px; }
+        .msg { padding: 10px 12px; border-radius: 8px; max-width: 85%; width: fit-content; font-size: 0.95rem; }
+        .msg.system { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; align-self: center; text-align: center; font-size: 0.85rem; }
+        .msg.user { background: var(--accent); align-self: flex-end; }
+        .msg.partner { background: #334155; align-self: flex-start; }
+
+        /* Спливаюче вікно налаштувань (Модалка) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+
+        .hidden { display: none !important; }
+
+        /* 📱 МОБІЛЬНА АДАПТАЦІЯ (Екрани менше 768px) */
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .app-container { grid-template-columns: 1fr; height: auto; display: none; }
+            .app-container.active-grid { display: flex; flex-direction: column; gap: 10px; }
+            .app-header { grid-column: span 1; padding: 10px 15px; }
+            .video-grid { height: 45vh; min-height: auto; }
+            .chat-block { height: 35vh; }
+            .local-video-stream { width: 75px; height: 100px; bottom: 10px; right: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ЕКРАН АВТОРИЗАЦІЇ -->
+    <div class="auth-container" id="authScreen">
+        <div class="lang-select-top">
+            <select onchange="changeLang(this.value)">
+                <option value="uk">UA 🇺🇦</option>
+                <option value="en">EN 🇺🇸</option>
+            </select>
+        </div>
+        <h2 id="t-authTitle" style="margin-bottom:20px;">Вхід у TalkNow</h2>
+        
+        <input type="text" id="authUsername" placeholder="Логін">
+        <input type="email" id="authEmail" class="hidden" placeholder="Email">
+        <input type="password" id="authPassword" placeholder="Пароль">
+        
+        <select id="authGender" class="hidden">
+            <option value="Чоловік" id="t-gMale">Я — Чоловік ♂</option>
+            <option value="Жінка" id="t-gFemale">Я — Жінка ♀</option>
+        </select>
+
+        <button class="btn" id="mainAuthBtn" onclick="submitAuth()">Увійти</button>
+        <button class="btn btn-alt" id="toggleAuthBtn" onclick="toggleAuthMode()">Створити новий акаунт</button>
+    </div>
+
+    <!-- ГОЛОВНИЙ ІНТЕРФЕЙС -->
+    <div class="app-container" id="appScreen">
+        
+        <!-- ВЕРХНЯ ПАНЕЛЬ -->
+        <div class="app-header">
+            <h2>TalkNow Pro</h2>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span id="userDisplay" style="font-weight: bold; color: var(--accent);"></span>
+                <!-- Кнопка Шестірні -->
+                <button class="settings-icon-btn" onclick="openSettings()">
+                    <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l-.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3-1.57-3-3.5s1.07-3.5 3-3.5 3 1.57 3 3.5-1.07 3.5-3 3.5z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ЦЕНТР: ВІДЕОЧАТ -->
+        <div class="video-block">
+            <div class="video-grid">
+                <video id="remoteVideo" class="remote-video-stream" autoplay playsinline></video>
+                <div class="local-video-stream">
+                    <video id="localVideo" autoplay playsinline muted></video>
+                </div>
+            </div>
+            <button class="btn" style="background:#22c55e; margin:0;" id="searchBtn" onclick="startSearch()">Знайти співрозмовника</button>
+        </div>
+
+        <!-- ПРАВА ЧАСТИНА: ЧАТ -->
+        <div class="chat-block">
+            <div style="padding:15px; background:#334155; font-weight:bold" id="chatHeader">💬 Приватний чат</div>
+            <div class="messages-area" id="messagesArea"></div>
+            <div style="padding:10px; display:flex; gap:10px; background:#1e293b;">
+                <input type="text" id="chatInput" placeholder="Повідомлення..." style="margin:0;" onkeypress="if(event.key==='Enter') sendMsg()">
+                <button class="btn" style="width:auto; margin:0; padding:0 15px;" onclick="sendMsg()">></button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- МОДАЛЬНЕ ВІКНО НАЛАШТУВАНЬ -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeSettings()">&times;</button>
+            <h3 id="t-setHeading" style="margin-bottom: 20px;">Налаштування профілю</h3>
+            
+            <label id="t-setLangLabel" style="font-size:0.85rem; color:var(--muted)">Мова інтерфейсу / Language</label>
+            <select id="langSelectModal" onchange="changeLang(this.value)">
+                <option value="uk">Українська 🇺🇦</option>
+                <option value="en">English 🇺🇸</option>
+            </select>
+
+            <label id="t-setAvLabel" style="font-size:0.85rem; color:var(--muted)">Аватарка (Емодзі)</label>
+            <input type="text" id="editAvatar">
+            
+            <label id="t-setBioLabel" style="font-size:0.85rem; color:var(--muted)">Про себе</label>
+            <textarea id="editBio" rows="3"></textarea>
+            
+            <button class="btn" id="t-setSaveBtn" onclick="updateProfile()">Зберегти зміни</button>
+            <button class="btn btn-danger" id="t-setLogoutBtn" onclick="logout()" style="margin-top:10px;">Вийти з акаунту</button>
+        </div>
+    </div>
+
+    <script>
+        // Словник перекладів
+        const translations = {
+            uk: {
+                authTitleLogin: "Вхід у TalkNow", authTitleReg: "Реєстрація",
+                btnLogin: "Увійти", btnReg: "Зареєструватися",
+                toggleReg: "Створити новий акаунт", toggleLogin: "Вже є профіль? Увійти",
+                gMale: "Я — Чоловік ♂", gFemale: "Я — Жінка ♀",
+                searchBtn: "Знайти співрозмовника", searchBtnActive: "Шукаємо пару...",
+                chatHeader: "💬 Приватний чат", chatHeaderWith: "💬 Чат з ",
+                setHeading: "Налаштування профілю", setLangLabel: "Мова інтерфейсу",
+                setAvLabel: "Аватарка (Емодзі)", setBioLabel: "Про себе",
+                setSaveBtn: "Зберегти зміни", setLogoutBtn: "Вийти з акаунту",
+                alertFields: "Заповніть обов'язкові поля!", alertRegSuccess: "Реєстрація успішна! Тепер увійдіть.",
+                alertSaveSuccess: "Профіль оновлено!", sysStart: "Натисніть кнопку пошуку пари.",
+                sysSearching: "Пошук людини з увімкненою камерою...", sysConnected: "Підключено до ",
+                sysBio: "Про співрозмовника: ", sysDisconnected: "Співрозмовник відключився."
+            },
+            en: {
+                authTitleLogin: "Sign In to TalkNow", authTitleReg: "Registration",
+                btnLogin: "Sign In", btnReg: "Register",
+                toggleReg: "Create new account", toggleLogin: "Have an account? Sign In",
+                gMale: "I am Male ♂", gFemale: "I am Female ♀",
+                searchBtn: "Find a Partner", searchBtnActive: "Searching...",
+                chatHeader: "💬 Private Chat", chatHeaderWith: "💬 Chat with ",
+                setHeading: "Profile Settings", setLangLabel: "Interface Language",
+                setAvLabel: "Avatar (Emoji)", setBioLabel: "Bio / About me",
+                setSaveBtn: "Save Changes", setLogoutBtn: "Log Out",
+                alertFields: "Please fill all fields!", alertRegSuccess: "Registration successful! Please login.",
+                alertSaveSuccess: "Profile updated!", sysStart: "Press the button to find a partner.",
+                sysSearching: "Searching for someone with a camera...", sysConnected: "Connected to ",
+                sysBio: "Partner's Bio: ", sysDisconnected: "Partner disconnected."
+            }
+        };
+
+        let currentLang = 'uk';
+        let currentUser = null;
+        let currentMode = 'login';
+        let ws = null;
+        let localStream = null;
+        let peerConnection = null;
+        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+        function changeLang(lang) {
+            currentLang = lang;
+            document.getElementById('langSelectModal').value = lang;
+            
+            const t = translations[lang];
+            // Переклад блоку авторизації
+            document.getElementById('t-authTitle').textContent = currentMode === 'login' ? t.authTitleLogin : t.authTitleReg;
+            document.getElementById('mainAuthBtn').textContent = currentMode === 'login' ? t.btnLogin : t.btnReg;
+            document.getElementById('toggleAuthBtn').textContent = currentMode === 'login' ? t.toggleReg : t.toggleLogin;
+            document.getElementById('t-gMale').textContent = t.gMale;
+            document.getElementById('t-gFemale').textContent = t.gFemale;
+
+            // Переклад кнопок та заголовків
+            if(document.getElementById('searchBtn').disabled === false) {
+                document.getElementById('searchBtn').textContent = t.searchBtn;
+            }
+            if(!ws) document.getElementById('chatHeader').textContent = t.chatHeader;
+
+            // Налаштування
+            document.getElementById('t-setHeading').textContent = t.setHeading;
+            document.getElementById('t-setLangLabel').textContent = t.setLangLabel;
+            document.getElementById('t-setAvLabel').textContent = t.setAvLabel;
+            document.getElementById('t-setBioLabel').textContent = t.setBioLabel;
+            document.getElementById('t-setSaveBtn').textContent = t.setSaveBtn;
+            document.getElementById('t-setLogoutBtn').textContent = t.setLogoutBtn;
+        }
+
+        // Вікна налаштувань
+        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+
+        function toggleAuthMode() {
+            currentMode = currentMode === 'login' ? 'register' : 'login';
+            document.getElementById('authEmail').classList.toggle('hidden', currentMode === 'login');
+            document.getElementById('authGender').classList.toggle('hidden', currentMode === 'login');
+            changeLang(currentLang);
+        }
+
+        async function submitAuth() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const email = document.getElementById('authEmail').value.trim();
+            const gender = document.getElementById('authGender').value;
+
+            if (!username || !password || (currentMode === 'register' && !email)) {
+                return alert(translations[currentLang].alertFields);
+            }
+
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: currentMode, username, email, password, gender })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                if (currentMode === 'register') {
+                    alert(translations[currentLang].alertRegSuccess);
+                    toggleAuthMode();
+                } else {
+                    setupApp(result.user);
+                }
+            } else { alert(result.error); }
+        }
+
+        function setupApp(user) {
+            currentUser = user;
+            document.getElementById('authScreen').style.display = 'none';
+            
+            const appScreen = document.getElementById('appScreen');
+            appScreen.style.display = 'grid';
+            appScreen.classList.add('active-grid'); // для мобільних екранів
+            
+            document.getElementById('userDisplay').textContent = user.avatar + " " + user.username;
+            document.getElementById('editAvatar').value = user.avatar;
+            document.getElementById('editBio').value = user.bio;
+            document.getElementById('messagesArea').innerHTML = `<div class="msg system">${translations[currentLang].sysStart}</div>`;
+
+            initMedia();
+        }
+
+        async function initMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+            } catch (e) {
+                alert('Камера/мікрофон не знайдені або доступ заблоковано.');
+            }
+        }
+
+        async function updateProfile() {
+            const response = await fetch('/api/profile-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: currentUser.username,
+                    avatar: document.getElementById('editAvatar').value,
+                    bio: document.getElementById('editBio').value
+                })
+            });
+            const result = await response.json();
+            if(result.success) {
+                currentUser = result.user;
+                document.getElementById('userDisplay').textContent = currentUser.avatar + " " + currentUser.username;
+                alert(translations[currentLang].alertSaveSuccess);
+                closeSettings();
+            }
+        }
+
+        function startSearch() {
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = true; btn.textContent = translations[currentLang].searchBtnActive; btn.style.background = '#64748b';
+
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            ws = new WebSocket(protocol + window.location.host);
+
+            ws.onopen = () => ws.send(JSON.stringify({ type: 'join', user: currentUser }));
+
+            ws.onmessage = async (event) => {
+                const data = JSON.parse(event.data);
+                const t = translations[currentLang];
+
+                if (data.type === 'system') {
+                    if (data.text === 'searching') {
+                        document.getElementById('messagesArea').innerHTML += `<div class="msg system">${t.sysSearching}</div>`;
+                    }
+                    if (data.text === 'connected' && data.partner) {
+                        document.getElementById('messagesArea').innerHTML += `<div class="msg system">${t.sysConnected} ${data.partner.username}</div>`;
+                        document.getElementById('chatHeader').textContent = t.chatHeaderWith + data.partner.username;
+                        document.getElementById('messagesArea').innerHTML += `<div class="msg system">${t.sysBio} ${data.partner.bio}</div>`;
+                        setupPeerConnection(data.initiateCall);
+                    }
+                    if (data.text === 'disconnected') {
+                        document.getElementById('messagesArea').innerHTML += `<div class="msg system">${t.sysDisconnected}</div>`;
+                        handleDisconnect();
+                    }
+                }
+                else if (data.type === 'chat') {
+                    const isMe = data.sender === currentUser.username;
+                    document.getElementById('messagesArea').innerHTML += `
+                        <div class="msg ${isMe ? 'user' : 'partner'}"><strong>${isMe ? 'You' : data.sender}:</strong> ${data.text}</div>
+                    `;
+                    document.getElementById('messagesArea').scrollTop = document.getElementById('messagesArea').scrollHeight;
+                }
+                else if (data.type === 'offer') {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    ws.send(JSON.stringify({ type: 'answer', answer }));
+                } 
+                else if (data.type === 'answer') {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                } 
+                else if (data.type === 'candidate') {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                }
+            };
+        }
+
+        function setupPeerConnection(isCaller) {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            peerConnection.ontrack = (event) => { document.getElementById('remoteVideo').srcObject = event.streams[0]; };
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
+                }
+            };
+            if (isCaller) {
+                peerConnection.onnegotiationneeded = async () => {
+                    const offer = await peerConnection.createOffer();
+                    await peerConnection.setLocalDescription(offer);
+                    ws.send(JSON.stringify({ type: 'offer', offer }));
+                };
+            }
+        }
+
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
+            if (!input.value.trim() || !ws) return;
+            ws.send(JSON.stringify({ type: 'chat', text: input.value.trim() }));
+            input.value = '';
+        }
+
+        function handleDisconnect() {
+            if (peerConnection) peerConnection.close();
+            document.getElementById('remoteVideo').srcObject = null;
+            document.getElementById('chatHeader').textContent = translations[currentLang].chatHeader;
+            
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = false; btn.textContent = translations[currentLang].searchBtn; btn.style.background = '#22c55e';
+        }
+
+        function logout() {
+            if(ws) ws.close();
+            if(localStream) localStream.getTracks().forEach(t => t.stop());
+            currentUser = null;
+            closeSettings();
+            document.getElementById('appScreen').style.display = 'none';
+            document.getElementById('appScreen').classList.remove('active-grid');
+            document.getElementById('authScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
