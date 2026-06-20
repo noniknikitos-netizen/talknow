@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TalkNow Pro 18+</title>
+    <title>TalkNow Pro</title>
     <style>
         :root {
             --bg-main: #0f172a;
@@ -13,7 +13,6 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --danger: #ef4444;
-            --success: #22c55e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
@@ -21,7 +20,6 @@
 
         header { background-color: var(--bg-card); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; height: 55px; }
         header h1 { font-size: 18px; font-weight: 700; color: var(--accent); }
-        .badge-18 { background: var(--danger); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 5px; }
 
         .controls-top { display: flex; gap: 8px; align-items: center; }
         select, button, input, textarea { background-color: #334155; color: var(--text-main); border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
@@ -37,7 +35,7 @@
         .video-wrapper { background-color: var(--bg-card); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #334155; display: flex; justify-content: center; align-items: center; }
         video { width: 100%; height: 100%; object-fit: contain; background-color: #000; transform: scaleX(-1); }
         #remoteVideo { transform: none; }
-        .video-label { position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.8); padding: 6px 12px; border-radius: 12px; font-size: 12px; backdrop-filter: blur(4px); max-width: 90%; line-height: 1.4; }
+        .video-label { position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.8); padding: 6px 12px; border-radius: 12px; font-size: 12px; backdrop-filter: blur(4px); max-width: 90%; }
 
         .chat-box { height: 110px; background: var(--bg-card); border-radius: 12px; border: 1px solid #334155; display: flex; flex-direction: column; overflow: hidden; }
         .chat-messages { flex: 1; padding: 8px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
@@ -50,7 +48,7 @@
         .circle-btn.off { background: var(--danger); }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.96); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 15px; }
-        .modal-card { background: var(--bg-card); padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; border: 1px solid #475569; max-height: 95vh; overflow-y: auto; position: relative; }
+        .modal-card { background: var(--bg-card); padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; border: 1px solid #475569; max-height: 95vh; overflow-y: auto; position: relative; text-align: center; }
         
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .tab { flex: 1; padding: 8px; background: transparent; color: var(--text-muted); font-weight: 600; border-radius: 6px; }
@@ -61,8 +59,7 @@
         
         .input-group { margin-bottom: 10px; text-align: left; }
         .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-        .input-group input, .input-group select, .input-group textarea { width: 100%; background: #0f172a; border: 1px solid #475569; padding: 10px; border-radius: 8px; color: #fff; }
-        .input-group textarea { resize: none; height: 50px; font-size: 13px; }
+        .input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #475569; padding: 10px; border-radius: 8px; color: #fff; }
 
         .captcha-box { display: flex; align-items: center; gap: 10px; background: #0f172a; padding: 8px; border-radius: 8px; margin-bottom: 12px; justify-content: space-between; }
         .captcha-num { font-size: 18px; font-weight: bold; letter-spacing: 5px; color: var(--accent); background: #1e293b; padding: 4px 10px; border-radius: 4px; user-select: none; }
@@ -73,10 +70,7 @@
 <body>
 
     <header>
-        <div style="display: flex; align-items: center;">
-            <h1>TalkNow Pro</h1>
-            <span class="badge-18">18+</span>
-        </div>
+        <h1>TalkNow Pro</h1>
         <div class="controls-top">
             <select id="langSelect" onchange="changeLanguage()">
                 <option value="uk">🇺🇦 UA</option>
@@ -122,7 +116,7 @@
                 <button class="tab" onclick="setAuthMode('register')" id="tabRegister">Реєстрація</button>
             </div>
 
-            <div id="regAvatarBlock">
+            <div id="regAvatarBlock" style="display: none;">
                 <div class="avatar-container">
                     <img id="avatarImg" class="avatar-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
                 </div>
@@ -145,7 +139,7 @@
                 <input type="password" id="passwordInput" placeholder="Введіть пароль">
             </div>
 
-            <div id="regFields">
+            <div id="regFields" style="display: none;">
                 <div class="input-group">
                     <label>Стать</label>
                     <select id="genderInput">
@@ -154,16 +148,8 @@
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>Вік (Тільки 18+)</label>
-                    <input type="number" id="ageInput" value="18" min="18" max="99">
-                </div>
-                <div class="input-group">
-                    <label>Про себе</label>
-                    <textarea id="aboutInput" placeholder="Хобі, інтереси, що шукаєте..."></textarea>
-                </div>
-                <div class="input-group">
-                    <label>Пункт від себе (Додатково)</label>
-                    <input type="text" id="customInput" placeholder="Наприклад: Місто, статус тощо">
+                    <label>Вік</label>
+                    <input type="number" id="ageInput" value="20" min="1" max="99">
                 </div>
             </div>
 
@@ -179,7 +165,7 @@
     <div class="modal" id="settingsModal" style="display: none;">
         <div class="modal-card">
             <button class="close-modal" onclick="closeSettings()">✕</button>
-            <h2 style="margin-bottom: 15px; font-size: 18px; text-align: center;">Редагувати Профіль</h2>
+            <h2 style="margin-bottom: 15px; font-size: 18px;">Налаштування Профілю</h2>
 
             <div class="avatar-container">
                 <img id="settingsAvatarImg" class="avatar-preview" src="">
@@ -198,15 +184,7 @@
             </div>
             <div class="input-group">
                 <label>Пароль</label>
-                <input type="password" id="settPassword" placeholder="Змінити пароль">
-            </div>
-            <div class="input-group">
-                <label>Про себе</label>
-                <textarea id="settAbout"></textarea>
-            </div>
-            <div class="input-group">
-                <label>Пункт від себе</label>
-                <input type="text" id="settCustom">
+                <input type="password" id="settPassword" placeholder="Новий пароль">
             </div>
 
             <button class="primary" style="width: 100%; padding: 10px; margin-bottom: 10px;" onclick="saveSettingsChanges()">Зберегти зміни</button>
@@ -216,9 +194,9 @@
 
     <script>
         const translations = {
-            uk: { lblMe: "Я", lblPartner: "Співрозмовник", btnNext: "Наступний ➡️", tabLogin: "Вхід", tabRegister: "Реєстрація", badCaptcha: "Невірний код капчі!", alert18: "Вхід дозволено лише особам від 18 років!", badLogin: "Невірний логін або пароль!" },
-            en: { lblMe: "Me", lblPartner: "Partner", btnNext: "Next ➡️", tabLogin: "Login", tabRegister: "Register", badCaptcha: "Invalid captcha!", alert18: "Access allowed only for 18+!", badLogin: "Wrong username or password!" },
-            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Следующий ➡️", tabLogin: "Вход", tabRegister: "Регистрация", badCaptcha: "Неверный код капчи!", alert18: "Вход разрешен только с 18 лет!", badLogin: "Неверный логин или пароль!" }
+            uk: { lblMe: "Я", lblPartner: "Співрозмовник", btnNext: "Наступний ➡️", tabLogin: "Вхід", tabRegister: "Реєстрація", badCaptcha: "Невірний код капчі!", badLogin: "Невірний логін або пароль!" },
+            en: { lblMe: "Me", lblPartner: "Partner", btnNext: "Next ➡️", tabLogin: "Login", tabRegister: "Register", badCaptcha: "Invalid captcha!", badLogin: "Wrong username or password!" },
+            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Следующий ➡️", tabLogin: "Вход", tabRegister: "Регистрация", badCaptcha: "Неверный код капчи!", badLogin: "Неверный логин или пароль!" }
         };
 
         let currentLang = 'uk';
@@ -229,15 +207,12 @@
         let myAvatarData = "";
         let authMode = "login";
         let generatedCaptcha = "";
-        let currentProfile = null;
+        let loggedInUser = null;
 
-        // Потужні WebRTC ICE сервери для 100% передачі звуку та відео через будь-який інтернет
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'turn:relay.metered.ca:443', username: 'openwebrtc', credential: 'openwebrtc_bypass' }
+                { urls: 'stun:stun1.l.google.com:19302' }
             ] 
         };
 
@@ -263,14 +238,23 @@
             document.getElementById('captchaCode').innerText = generatedCaptcha;
         }
 
+        // Локальна база даних прямо у пристрої користувача
+        function getLocalAccounts() {
+            return JSON.parse(localStorage.getItem('talknow_local_db') || '{}');
+        }
+
         function checkLocalStorage() {
-            const lastUser = localStorage.getItem('talknow_last_logged');
-            if (lastUser) {
-                document.getElementById('usernameInput').value = lastUser;
-                setAuthMode('login');
-            } else {
-                setAuthMode('register');
+            const session = localStorage.getItem('talknow_session');
+            if (session) {
+                const accounts = getLocalAccounts();
+                if (accounts[session]) {
+                    document.getElementById('authModal').style.display = 'none';
+                    loggedInUser = accounts[session];
+                    initWebSocket(loggedInUser);
+                    return;
+                }
             }
+            setAuthMode('login');
         }
 
         function submitAuth() {
@@ -282,51 +266,44 @@
 
             const name = document.getElementById('usernameInput').value.trim();
             const pass = document.getElementById('passwordInput').value;
-            const age = parseInt(document.getElementById('ageInput').value);
 
             if (!name || !pass) {
-                alert("Заповніть логін та пароль!");
+                alert("Заповніть усі поля!");
                 return;
             }
 
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                initWebSocket(() => proceedAuth(name, pass, age));
-            } else {
-                proceedAuth(name, pass, age);
-            }
-        }
+            let accounts = getLocalAccounts();
 
-        function proceedAuth(name, pass, age) {
             if (authMode === 'register') {
-                if (age < 18 || isNaN(age)) {
-                    alert(translations[currentLang].alert18);
-                    return;
-                }
-                const profile = {
-                    name: name, gender: document.getElementById('genderInput').value,
-                    age: age, about: document.getElementById('aboutInput').value,
-                    customSetting: document.getElementById('customInput').value, avatar: myAvatarData
+                accounts[name] = {
+                    name: name, password: pass,
+                    gender: document.getElementById('genderInput').value,
+                    age: document.getElementById('ageInput').value,
+                    avatar: myAvatarData
                 };
-                socket.send(JSON.stringify({ type: 'register_account', password: pass, profile: profile }));
+                localStorage.setItem('talknow_local_db', JSON.stringify(accounts));
+                localStorage.setItem('talknow_session', name);
+                loggedInUser = accounts[name];
+                document.getElementById('authModal').style.display = 'none';
+                initWebSocket(loggedInUser);
             } else {
-                socket.send(JSON.stringify({ type: 'login_account', name: name, password: pass }));
+                if (accounts[name] && accounts[name].password === pass) {
+                    localStorage.setItem('talknow_session', name);
+                    loggedInUser = accounts[name];
+                    document.getElementById('authModal').style.display = 'none';
+                    initWebSocket(loggedInUser);
+                } else {
+                    alert(translations[currentLang].badLogin);
+                    generateCaptcha();
+                }
             }
-        }
-
-        function enterChat(profile) {
-            currentProfile = profile;
-            localStorage.setItem('talknow_last_logged', profile.name);
-            document.getElementById('authModal').style.display = 'none';
-            socket.send(JSON.stringify({ type: 'join', userId: myId, profile: currentProfile }));
         }
 
         function openSettings() {
-            if (!currentProfile) return;
-            document.getElementById('settName').value = currentProfile.name;
-            document.getElementById('settPassword').value = currentProfile.password || "";
-            document.getElementById('settAbout').value = currentProfile.about || "";
-            document.getElementById('settCustom').value = currentProfile.customSetting || "";
-            document.getElementById('settingsAvatarImg').src = currentProfile.avatar || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>";
+            if (!loggedInUser) return;
+            document.getElementById('settName').value = loggedInUser.name;
+            document.getElementById('settPassword').value = loggedInUser.password;
+            document.getElementById('settingsAvatarImg').src = loggedInUser.avatar || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>";
             document.getElementById('settingsModal').style.display = 'flex';
         }
 
@@ -335,29 +312,35 @@
         }
 
         function saveSettingsChanges() {
-            if (!currentProfile) return;
-            currentProfile.name = document.getElementById('settName').value;
-            const newPass = document.getElementById('settPassword').value;
-            currentProfile.about = document.getElementById('settAbout').value;
-            currentProfile.customSetting = document.getElementById('settCustom').value;
-            currentProfile.avatar = document.getElementById('settingsAvatarImg').src;
+            if (!loggedInUser) return;
+            let accounts = getLocalAccounts();
+            delete accounts[loggedInUser.name]; // видаляємо старий ключ, якщо ім'я змінилося
 
-            socket.send(JSON.stringify({ type: 'register_account', password: newPass, profile: currentProfile }));
+            loggedInUser.name = document.getElementById('settName').value;
+            loggedInUser.password = document.getElementById('settPassword').value;
+            loggedInUser.avatar = document.getElementById('settingsAvatarImg').src;
+
+            accounts[loggedInUser.name] = loggedInUser;
+            localStorage.setItem('talknow_local_db', JSON.stringify(accounts));
+            localStorage.setItem('talknow_session', loggedInUser.name);
             closeSettings();
+
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: loggedInUser }));
+            }
         }
 
         function logout() {
-            localStorage.removeItem('talknow_last_logged');
+            localStorage.removeItem('talknow_session');
             location.reload();
         }
 
-        // ОБОВ'ЯЗКОВИЙ ЗАПИТ НА КАМЕРУ ТА МІКРОФОН (AUDIO: TRUE)
         async function initCamera() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
             } catch (e) { 
-                alert("Помилка! Дозвольте доступ до камери та МІКРОФОНА у браузері, щоб спілкуватися."); 
+                console.log("Камера/мікрофон заблоковані або не знайдені.");
             }
         }
 
@@ -398,44 +381,30 @@
             document.getElementById(targetImgId).src = myAvatarData;
         }
 
-        function initWebSocket(onOpenCallback) {
+        function initWebSocket(profile) {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             socket = new WebSocket(`${protocol}//${window.location.host}`);
 
             socket.onopen = () => {
-                if (onOpenCallback) onOpenCallback();
+                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
             };
 
             socket.onmessage = async (message) => {
                 const data = JSON.parse(message.data);
 
-                if (data.type === 'auth_success') {
-                    enterChat(data.profile);
-                }
-
-                if (data.type === 'auth_fail') {
-                    alert(data.reason);
-                    generateCaptcha();
-                }
-
                 if (data.type === 'waiting') {
-                    document.getElementById('lblPartner').innerText = "Шукаємо когось цікавого...";
+                    document.getElementById('lblPartner').innerText = "Шукаємо співрозмовника...";
                 }
 
                 if (data.type === 'connected') {
                     const p = data.partnerProfile;
-                    // Відображаємо всі дані користувача, включно з "пунктом від себе"
-                    document.getElementById('lblPartner').innerHTML = `
-                        <strong>${p.name} (${p.gender}, ${p.age} р.)</strong><br>
-                        <small style="color:#a5b4fc; font-weight:bold;">${p.customSetting ? '📌 ' + p.customSetting : ''}</small><br>
-                        <small style="color:var(--text-muted)">${p.about || 'Без опису'}</small>
-                    `;
+                    document.getElementById('lblPartner').innerHTML = `<strong>${p.name} (${p.gender}, ${p.age} р.)</strong>`;
                     appendChatMessage("Система", `Ви підключилися до ${p.name}!`);
                     startCall(true);
                 }
 
                 if (data.type === 'partner_disconnected') {
-                    appendChatMessage("Система", "Співрозмовник вийшок.");
+                    appendChatMessage("Система", "Співрозмовник вийшов.");
                     closeCall();
                 }
 
@@ -465,10 +434,12 @@
 
         async function startCall(isCaller) {
             peerConnection = new RTCPeerConnection(configuration);
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            
+            if (localStream) {
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            }
 
             peerConnection.ontrack = (event) => {
-                // ПІДКЛЮЧЕННЯ ВІДЕО ТА ЗВУКУ СПІВРОЗМОВНИКА
                 document.getElementById('remoteVideo').srcObject = event.streams[0];
             };
 
@@ -517,8 +488,11 @@
             document.getElementById('lblPartner').innerText = "Співрозмовник";
         }
 
-        initCamera();
-        checkLocalStorage();
+        // Спочатку запускаємо камеру, потім перевіряємо акаунти
+        initCamera().then(() => {
+            checkLocalStorage();
+        });
+        
         generateCaptcha();
         document.getElementById('chatInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     </script>
