@@ -3,404 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TalkNow Pro</title>
+    <title>TalkNow Pro — Відеочат</title>
     <style>
         :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --accent: #6366f1;
-            --accent-hover: #4f46e5;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --danger: #ef4444;
+            --bg-dark: #090d16;
+            --bg-panel: #111827;
+            --bg-card: #1f2937;
+            --accent: #00f2fe;
+            --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --danger: #ff4a5a;
+            --success: #10b981;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        header { background-color: var(--bg-card); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; height: 55px; }
-        header h1 { font-size: 18px; font-weight: 700; color: var(--accent); }
-
-        .controls-top { display: flex; gap: 8px; align-items: center; }
-        select, button, input, textarea { background-color: #334155; color: var(--text-main); border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
-        button.primary { background-color: var(--accent); font-weight: 600; }
-        button.primary:hover { background-color: var(--accent-hover); }
-        button.danger { background-color: var(--danger); }
-
-        .main-container { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 55px); overflow: hidden; }
-
-        .video-grid { flex: 1; display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 10px; min-height: 0; }
-        @media(min-width: 768px) { .video-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; } }
-
-        .video-wrapper { background-color: var(--bg-card); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #334155; display: flex; justify-content: center; align-items: center; }
-        video { width: 100%; height: 100%; object-fit: contain; background-color: #000; transform: scaleX(-1); }
-        #remoteVideo { transform: none; }
-        .video-label { position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.8); padding: 6px 12px; border-radius: 12px; font-size: 12px; backdrop-filter: blur(4px); max-width: 90%; }
-
-        .chat-box { height: 110px; background: var(--bg-card); border-radius: 12px; border: 1px solid #334155; display: flex; flex-direction: column; overflow: hidden; }
-        .chat-messages { flex: 1; padding: 8px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
-        .chat-input-area { display: flex; border-top: 1px solid #334155; }
-        .chat-input-area input { flex: 1; background: transparent; border-radius: 0; padding: 8px; }
-        .chat-input-area button { border-radius: 0; background: var(--accent); width: 60px; }
-
-        .action-bar { display: flex; justify-content: center; gap: 10px; padding: 5px 0; align-items: center; }
-        .circle-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; background: #334155; }
-        .circle-btn.off { background: var(--danger); }
-
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.96); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 15px; }
-        .modal-card { background: var(--bg-card); padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; border: 1px solid #475569; max-height: 95vh; overflow-y: auto; position: relative; text-align: center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        .tab { flex: 1; padding: 8px; background: transparent; color: var(--text-muted); font-weight: 600; border-radius: 6px; }
-        .tab.active { background: #334155; color: #fff; }
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        .avatar-container { position: relative; width: 80px; height: 80px; margin: 0 auto 10px; }
-        .avatar-preview { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); background: #334155; }
-        
-        .input-group { margin-bottom: 10px; text-align: left; }
-        .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-        .input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #475569; padding: 10px; border-radius: 8px; color: #fff; }
+        /* Головна сітка як у Camloo */
+        .app-wrapper {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        .captcha-box { display: flex; align-items: center; gap: 10px; background: #0f172a; padding: 8px; border-radius: 8px; margin-bottom: 12px; justify-content: space-between; }
-        .captcha-num { font-size: 18px; font-weight: bold; letter-spacing: 5px; color: var(--accent); background: #1e293b; padding: 4px 10px; border-radius: 4px; user-select: none; }
+        /* ЛІВА ПАНЕЛЬ: НАЛАШТУВАННЯ ПОШУКУ */
+        .side-panel {
+            width: 320px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid #2d3748;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .logo-area h1 {
+            font-size: 22px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .search-options {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        select, input {
+            width: 100%;
+            background-color: var(--bg-card);
+            border: 1px solid #374151;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+        }
+
+        /* ЦЕНТРАЛЬНА ЧАСТИНА: ВІДЕОПЛЕЄР */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: #000;
+        }
+
+        .video-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #05070f;
+        }
+
+        /* Велике відео співрозмовника на весь екран */
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #05070f;
+        }
+
+        /* Маленьке відео "Я" поверх великого */
+        .local-video-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 160px;
+            height: 120px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+            z-index: 5;
+            transition: all 0.3s;
+        }
+
+        #localVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .partner-info-overlay {
+            position: absolute;
+            bottom: 90px;
+            left: 20px;
+            background: rgba(17, 24, 39, 0.75);
+            padding: 10px 18px;
+            border-radius: 14px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.05);
+            z-index: 4;
+        }
+
+        /* Нижня панель керування */
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to top, rgba(9,13,22,0.95) 70%, rgba(9,13,22,0));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            z-index: 4;
+            padding-bottom: 10px;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            color: #fff;
+            font-size: 20px;
+            border: 1px solid #374151;
+        }
+
+        .btn-circle:hover {
+            background-color: #374151;
+            transform: scale(1.05);
+        }
+
+        .btn-circle.off {
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-primary {
+            height: 50px;
+            padding: 0 35px;
+            border-radius: 25px;
+            background: var(--accent-gradient);
+            color: #000;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
+        }
+
+        /* ПРАВА ПАНЕЛЬ: ТЕКСТОВИЙ ЧАТ */
+        .chat-panel {
+            width: 340px;
+            background-color: var(--bg-panel);
+            border-left: 1px solid #2d3748;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .chat-header {
+            padding: 16px;
+            border-bottom: 1px solid #2d3748;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg-block {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .msg-system {
+            background: rgba(55, 65, 81, 0.5);
+            color: var(--text-muted);
+            align-self: center;
+            font-size: 12px;
+            text-align: center;
+            max-width: 95%;
+        }
         
-        .close-modal { position: absolute; top: 12px; right: 15px; font-size: 20px; background: transparent; color: var(--text-muted); }
+        .msg-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            align-self: center;
+            font-size: 13px;
+        }
+
+        .msg-me {
+            background: #2563eb;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-partner {
+            background: var(--bg-card);
+            color: #fff;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #374151;
+        }
+
+        .chat-input-wrapper {
+            padding: 14px;
+            border-top: 1px solid #2d3748;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-wrapper input {
+            flex: 1;
+            padding: 12px;
+        }
+
+        .btn-send {
+            width: 46px;
+            height: 46px;
+            background: var(--bg-card);
+            border: 1px solid #374151;
+            border-radius: 10px;
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        /* АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ (Екрани ховаються у вкладки) */
+        @media (max-width: 992px) {
+            .side-panel { display: none; }
+            .chat-panel { display: none; }
+            .local-video-wrapper { width: 110px; height: 85px; top: 15px; right: 15px; }
+        }
+
+        /* МОДАЛЬНЕ ВІКНО АВТОРИЗАЦІЇ */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 7, 15, 0.95); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); }
+        .modal-card { background: var(--bg-panel); padding: 30px; border-radius: 20px; width: 100%; max-width: 380px; border: 1px solid #374151; text-align: center; }
+        .modal-card h2 { margin-bottom: 20px; font-weight: 800; }
+        .modal-card .btn-primary { width: 100%; margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <script>
-        // АВТОМАТИЧНИЙ РЕДІРЕКТ НА HTTPS ДЛЯ СЕРВЕРІВ ТИПУ RENDER
+        // Примусовий HTTPS редірект
         if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
             window.location.href = window.location.href.replace('http:', 'https:');
         }
     </script>
 
-    <header>
-        <h1>TalkNow Pro</h1>
-        <div class="controls-top">
-            <select id="langSelect" onchange="changeLanguage()">
-                <option value="uk">🇺🇦 UA</option>
-                <option value="en">🇺🇸 EN</option>
-                <option value="ru">🇷🇺 RU</option>
-            </select>
-            <button id="btnSettings" onclick="openSettings()" style="background: transparent; font-size: 18px; padding: 4px;">⚙️</button>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <div class="video-grid">
-            <div class="video-wrapper">
-                <video id="localVideo" autoplay playsinline muted></video>
-                <div class="video-label" id="lblMe">Я</div>
+    <div class="app-wrapper">
+        
+        <div class="side-panel">
+            <div class="logo-area">
+                <h1>TalkNow Pro</h1>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span>Online</span>
+                </div>
             </div>
-            <div class="video-wrapper">
+
+            <div class="search-options">
+                <div class="option-group">
+                    <div class="section-title">Я шукаю</div>
+                    <select id="searchGender">
+                        <option value="Всі">Дівчат та Хлопців 🌍</option>
+                        <option value="Жінка">Тільки Дівчат 🙋‍♀️</option>
+                        <option value="Чоловік">Тільки Хлопців 🙋‍♂️</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <div class="section-title">Моя стать</div>
+                    <select id="myGender">
+                        <option value="Чоловік">Я Хлопець 🙋‍♂️</option>
+                        <option value="Жінка">Я Дівчина 🙋‍♀️</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <div class="section-title">Мій вік</div>
+                    <input type="number" id="myAge" value="20" min="18" max="99">
+                </div>
+                
+                <div class="option-group" style="margin-top: auto;">
+                    <div class="section-title" style="text-align: center;">Мова інтерфейсу</div>
+                    <select id="langSelect">
+                        <option value="uk">🇺🇦 Українська</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="video-container">
                 <video id="remoteVideo" autoplay playsinline></video>
-                <div class="video-label" id="lblPartner">Співрозмовник</div>
+                
+                <div class="local-video-wrapper">
+                    <video id="localVideo" autoplay playsinline muted></video>
+                </div>
+
+                <div class="partner-info-overlay" id="partnerInfo">
+                    <span style="color: var(--text-muted)">Очікування пошуку...</span>
+                </div>
+            </div>
+
+            <div class="bottom-controls">
+                <button id="btnAudio" class="btn btn-circle" onclick="toggleAudio()">🎙️</button>
+                <button id="btnVideo" class="btn btn-circle" onclick="toggleVideo()">📹</button>
+                <button id="btnNext" class="btn btn-primary" onclick="nextPartner()">Шукати наступного ⚡</button>
             </div>
         </div>
 
-        <div class="chat-box">
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area">
+        <div class="chat-panel">
+            <div class="chat-header">
+                <span>Текстовий чат</span>
+                <span style="font-size: 12px; color: var(--accent);" id="chatStatus">вільний</span>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg-block msg-system">Вітаємо у TalkNow! Натисніть кнопку «Шукати», щоб знайти пару.</div>
+            </div>
+
+            <div class="chat-input-wrapper">
                 <input type="text" id="chatInput" placeholder="Напишіть повідомлення...">
-                <button onclick="sendChatMessage()">➡️</button>
+                <button class="btn btn-send" onclick="sendChatMessage()">➡️</button>
             </div>
         </div>
 
-        <div class="action-bar">
-            <button id="btnAudio" class="circle-btn" onclick="toggleAudio()">🎙️</button>
-            <button id="btnVideo" class="circle-btn" onclick="toggleVideo()">📹</button>
-            <button id="btnFlip" class="circle-btn">🔄</button>
-            <button id="btnNext" class="primary" style="padding: 0 20px; height: 44px; border-radius: 22px;" onclick="nextPartner()">Наступний ➡️</button>
-        </div>
     </div>
 
     <div class="modal" id="authModal">
         <div class="modal-card">
-            <div class="tabs">
-                <button class="tab active" onclick="setAuthMode('login')" id="tabLogin">Вхід</button>
-                <button class="tab" onclick="setAuthMode('register')" id="tabRegister">Реєстрація</button>
+            <h2>Вхід в чат</h2>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 12px; color: var(--text-muted); display:block; margin-bottom:5px;">Ваше ім'я чи нікнейм</label>
+                <input type="text" id="usernameInput" value="Гість">
             </div>
-
-            <div id="regAvatarBlock" style="display: none;">
-                <div class="avatar-container">
-                    <img id="avatarImg" class="avatar-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
-                </div>
-                <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 12px;">
-                    <label class="primary" style="padding: 5px 10px; font-size: 11px; border-radius: 6px; cursor: pointer;">
-                        📂 <span id="btnGallery">Галерея</span>
-                        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="loadAvatarFile(event, 'avatarImg')">
-                    </label>
-                    <button type="button" style="font-size: 11px;" onclick="snapAvatar('avatarImg')">📸 <span>Зробити фото</span></button>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>Логін / Ім'я</label>
-                <input type="text" id="usernameInput" placeholder="Введіть ваш логін">
-            </div>
-
-            <div class="input-group">
-                <label>Пароль</label>
-                <input type="password" id="passwordInput" placeholder="Введіть пароль">
-            </div>
-
-            <div id="regFields" style="display: none;">
-                <div class="input-group">
-                    <label>Стать</label>
-                    <select id="genderInput">
-                        <option value="Чоловік">Чоловік</option>
-                        <option value="Жінка">Жінка</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Вік</label>
-                    <input type="number" id="ageInput" value="20" min="1" max="99">
-                </div>
-            </div>
-
-            <div class="captcha-box">
-                <div class="captcha-num" id="captchaCode">1234</div>
-                <input type="text" id="captchaInput" placeholder="Код" style="width: 100px; padding: 8px;">
-            </div>
-
-            <button class="primary" style="width: 100%; padding: 12px;" onclick="submitAuth()" id="btnSave">Увійти</button>
-        </div>
-    </div>
-
-    <div class="modal" id="settingsModal" style="display: none;">
-        <div class="modal-card">
-            <button class="close-modal" onclick="closeSettings()">✕</button>
-            <h2 style="margin-bottom: 15px; font-size: 18px;">Налаштування Профілю</h2>
-
-            <div class="avatar-container">
-                <img id="settingsAvatarImg" class="avatar-preview" src="">
-            </div>
-            <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 12px;">
-                <label class="primary" style="padding: 5px 10px; font-size: 11px; border-radius: 6px; cursor: pointer;">
-                    📂 <span>Галерея</span>
-                    <input type="file" id="fileInputSettings" accept="image/*" style="display:none;" onchange="loadAvatarFile(event, 'settingsAvatarImg')">
-                </label>
-                <button type="button" style="font-size: 11px;" onclick="snapAvatar('settingsAvatarImg')">📸 <span>Зробити фото</span></button>
-            </div>
-
-            <div class="input-group">
-                <label>Ім'я в чаті</label>
-                <input type="text" id="settName">
-            </div>
-            <div class="input-group">
-                <label>Пароль</label>
-                <input type="password" id="settPassword" placeholder="Новий пароль">
-            </div>
-
-            <button class="primary" style="width: 100%; padding: 10px; margin-bottom: 10px;" onclick="saveSettingsChanges()">Зберегти зміни</button>
-            <button class="danger" style="width: 100%; padding: 10px;" onclick="logout()">Вийти з акаунта 🚪</button>
+            <button class="btn btn-primary" onclick="closeAuthModal()">Увійти в чат 🚀</button>
         </div>
     </div>
 
     <script>
-        const translations = {
-            uk: { lblMe: "Я", lblPartner: "Співрозмовник", btnNext: "Наступний ➡️", tabLogin: "Вхід", tabRegister: "Реєстрація", badCaptcha: "Невірний код капчі!", badLogin: "Невірний логін або пароль!" },
-            en: { lblMe: "Me", lblPartner: "Partner", btnNext: "Next ➡️", tabLogin: "Login", tabRegister: "Register", badCaptcha: "Invalid captcha!", badLogin: "Wrong username or password!" },
-            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Следующий ➡️", tabLogin: "Вход", tabRegister: "Регистрация", badCaptcha: "Неверный код капчи!", badLogin: "Неверный логин или пароль!" }
-        };
-
-        let currentLang = 'uk';
         let localStream;
         let peerConnection;
         let socket;
         let myId = Math.random().toString(36).substr(2, 9);
-        let myAvatarData = "";
-        let authMode = "login";
-        let generatedCaptcha = "";
         let loggedInUser = null;
 
         const configuration = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun.services.mozilla.com' },
-                { 
-                    urls: 'turn:relay.metered.ca:80', 
-                    username: 'openwebrtc', 
-                    credential: 'openwebrtc_bypass' 
-                },
-                { 
-                    urls: 'turn:relay.metered.ca:443', 
-                    username: 'openwebrtc', 
-                    credential: 'openwebrtc_bypass' 
-                }
+                { urls: 'turn:relay.metered.ca:80', username: 'openwebrtc', credential: 'openwebrtc_bypass' },
+                { urls: 'turn:relay.metered.ca:443', username: 'openwebrtc', credential: 'openwebrtc_bypass' }
             ] 
         };
 
-        function changeLanguage() {
-            currentLang = document.getElementById('langSelect').value;
-            document.getElementById('lblMe').innerText = translations[currentLang].lblMe;
-            document.getElementById('btnNext').innerText = translations[currentLang].btnNext;
-            document.getElementById('tabLogin').innerText = translations[currentLang].tabLogin;
-            document.getElementById('tabRegister').innerText = translations[currentLang].tabRegister;
-        }
-
-        function setAuthMode(mode) {
-            authMode = mode;
-            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
-            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
-            document.getElementById('regFields').style.display = mode === 'login' ? 'none' : 'block';
-            document.getElementById('regAvatarBlock').style.display = mode === 'login' ? 'none' : 'block';
-            document.getElementById('btnSave').innerText = mode === 'login' ? 'Увійти' : 'Зареєструватися';
-        }
-
-        function generateCaptcha() {
-            generatedCaptcha = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('captchaCode').innerText = generatedCaptcha;
-        }
-
-        function getLocalAccounts() {
-            return JSON.parse(localStorage.getItem('talknow_local_db') || '{}');
-        }
-
-        function checkLocalStorage() {
-            const session = localStorage.getItem('talknow_session');
-            if (session) {
-                const accounts = getLocalAccounts();
-                if (accounts[session]) {
-                    document.getElementById('authModal').style.display = 'none';
-                    loggedInUser = accounts[session];
-                    initWebSocket(loggedInUser);
-                    return;
-                }
-            }
-            setAuthMode('login');
-        }
-
-        function submitAuth() {
-            if (document.getElementById('captchaInput').value.trim() !== generatedCaptcha) {
-                alert(translations[currentLang].badCaptcha);
-                generateCaptcha();
-                return;
-            }
-
-            const name = document.getElementById('usernameInput').value.trim();
-            const pass = document.getElementById('passwordInput').value;
-
-            if (!name || !pass) {
-                alert("Заповніть усі поля!");
-                return;
-            }
-
-            let accounts = getLocalAccounts();
-
-            if (authMode === 'register') {
-                accounts[name] = {
-                    name: name, password: pass,
-                    gender: document.getElementById('genderInput').value,
-                    age: document.getElementById('ageInput').value,
-                    avatar: myAvatarData
-                };
-                localStorage.setItem('talknow_local_db', JSON.stringify(accounts));
-                localStorage.setItem('talknow_session', name);
-                loggedInUser = accounts[name];
-                document.getElementById('authModal').style.display = 'none';
-                initWebSocket(loggedInUser);
-            } else {
-                if (accounts[name] && accounts[name].password === pass) {
-                    localStorage.setItem('talknow_session', name);
-                    loggedInUser = accounts[name];
-                    document.getElementById('authModal').style.display = 'none';
-                    initWebSocket(loggedInUser);
-                } else {
-                    alert(translations[currentLang].badLogin);
-                    generateCaptcha();
-                }
-            }
-        }
-
-        function openSettings() {
-            if (!loggedInUser) return;
-            document.getElementById('settName').value = loggedInUser.name;
-            document.getElementById('settPassword').value = loggedInUser.password;
-            document.getElementById('settingsAvatarImg').src = loggedInUser.avatar || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>";
-            document.getElementById('settingsModal').style.display = 'flex';
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').style.display = 'none';
-        }
-
-        function saveSettingsChanges() {
-            if (!loggedInUser) return;
-            let accounts = getLocalAccounts();
-            delete accounts[loggedInUser.name];
-
-            loggedInUser.name = document.getElementById('settName').value;
-            loggedInUser.password = document.getElementById('settPassword').value;
-            loggedInUser.avatar = document.getElementById('settingsAvatarImg').src;
-
-            accounts[loggedInUser.name] = loggedInUser;
-            localStorage.setItem('talknow_local_db', JSON.stringify(accounts));
-            localStorage.setItem('talknow_session', loggedInUser.name);
-            closeSettings();
-
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: loggedInUser }));
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('talknow_session');
-            location.reload();
+        function closeAuthModal() {
+            const name = document.getElementById('usernameInput').value.trim() || "Гість";
+            loggedInUser = {
+                name: name,
+                gender: document.getElementById('myGender').value,
+                age: document.getElementById('myAge').value,
+                searchGender: document.getElementById('searchGender').value
+            };
+            document.getElementById('authModal').style.display = 'none';
+            initWebSocket(loggedInUser);
         }
 
         async function initCamera() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 document.getElementById('localVideo').srcObject = localStream;
-                appendChatMessage("Система", "Камера та мікрофон успішно підключені!");
             } catch (e) { 
-                // Виводимо детальну помилку прямо на екран чату
-                appendChatMessage("Помилка камери", `Не вдалося отримати доступ: ${e.name}. Перевірте дозволи у налаштуваннях пристрою/браузера та переконайтеся, що протокол безпечний (HTTPS)!`);
+                appendSystemMessage(`Помилка камери: ${e.name}. Будь ласка, увімкніть камеру в налаштуваннях та використовуйте HTTPS!`, true);
             }
-        }
-
-        function toggleAudio() {
-            if (!localStream) return;
-            const track = localStream.getAudioTracks()[0];
-            if (track) {
-                track.enabled = !track.enabled;
-                document.getElementById('btnAudio').classList.toggle('off', !track.enabled);
-                document.getElementById('btnAudio').innerText = track.enabled ? "🎙️" : "🔇";
-            }
-        }
-
-        function toggleVideo() {
-            if (!localStream) return;
-            const track = localStream.getVideoTracks()[0];
-            if (track) {
-                track.enabled = !track.enabled;
-                document.getElementById('btnVideo').classList.toggle('off', !track.enabled);
-                document.getElementById('btnVideo').innerText = track.enabled ? "📹" : "🚫";
-            }
-        }
-
-        function loadAvatarFile(event, targetImgId) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                myAvatarData = reader.result;
-                document.getElementById(targetImgId).src = myAvatarData;
-            }
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
-        function snapAvatar(targetImgId) {
-            if (!localStream) return;
-            const video = document.getElementById('localVideo');
-            const canvas = document.createElement('canvas');
-            canvas.width = 150; canvas.height = 150;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, (video.videoWidth-video.videoHeight)/2, 0, video.videoHeight, video.videoHeight, 0, 0, 150, 150);
-            myAvatarData = canvas.toDataURL('image/jpeg');
-            document.getElementById(targetImgId).src = myAvatarData;
         }
 
         function initWebSocket(profile) {
@@ -415,23 +497,25 @@
                 const data = JSON.parse(message.data);
 
                 if (data.type === 'waiting') {
-                    document.getElementById('lblPartner').innerText = "Шукаємо співрозмовника...";
+                    document.getElementById('partnerInfo').innerHTML = `<span style="color:var(--accent)">Шукаємо когось підходящого... 🔍</span>`;
+                    document.getElementById('chatStatus').innerText = "пошук...";
                 }
 
                 if (data.type === 'connected') {
                     const p = data.partnerProfile;
-                    document.getElementById('lblPartner').innerHTML = `<strong>${p.name} (${p.gender}, ${p.age} р.)</strong>`;
-                    appendChatMessage("Система", `Ви підключилися до ${p.name}!`);
+                    document.getElementById('partnerInfo').innerHTML = `🇺🇦 <strong>${p.name}, ${p.age} р. (${p.gender})</strong>`;
+                    document.getElementById('chatStatus').innerText = "у мережі";
+                    appendSystemMessage(`Система: Вас з'єднано з ${p.name}`);
                     startCall(true);
                 }
 
                 if (data.type === 'partner_disconnected') {
-                    appendChatMessage("Система", "Співрозмовник вийшов.");
+                    appendSystemMessage("Система: Співрозмовник відключився.");
                     closeCall();
                 }
 
                 if (data.type === 'chat_message') {
-                    appendChatMessage("Співрозмовник", data.text);
+                    appendMessage("partner", data.text);
                 }
 
                 if (data.type === 'offer') {
@@ -450,7 +534,7 @@
                     if (peerConnection) {
                         try {
                             await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                        } catch(e) { console.error("Помилка додавання ICE кандидата", e); }
+                        } catch(e) {}
                     }
                 }
             };
@@ -487,15 +571,25 @@
             const text = input.value.trim();
             if (text && socket && socket.readyState === WebSocket.OPEN) {
                 socket.send(JSON.stringify({ type: 'message', text: text }));
-                appendChatMessage("Я", text);
+                appendMessage("me", text);
                 input.value = "";
             }
         }
 
-        function appendChatMessage(sender, text) {
+        function appendMessage(type, text) {
             const box = document.getElementById('chatMessages');
             const msg = document.createElement('div');
-            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            msg.className = `msg-block ${type === 'me' ? 'msg-me' : 'msg-partner'}`;
+            msg.innerText = text;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function appendSystemMessage(text, isError = false) {
+            const box = document.getElementById('chatMessages');
+            const msg = document.createElement('div');
+            msg.className = `msg-block ${isError ? 'msg-error' : 'msg-system'}`;
+            msg.innerText = text;
             box.appendChild(msg);
             box.scrollTop = box.scrollHeight;
         }
@@ -504,21 +598,42 @@
             closeCall();
             document.getElementById('chatMessages').innerHTML = "";
             if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'next' }));
+                // Оновлюємо фільтри перед пошуком нового партнера
+                loggedInUser.searchGender = document.getElementById('searchGender').value;
+                loggedInUser.gender = document.getElementById('myGender').value;
+                loggedInUser.age = document.getElementById('myAge').value;
+                
+                socket.send(JSON.stringify({ type: 'next', profile: loggedInUser }));
             }
         }
 
         function closeCall() {
             if (peerConnection) { peerConnection.close(); peerConnection = null; }
             document.getElementById('remoteVideo').srcObject = null;
-            document.getElementById('lblPartner').innerText = "Співрозмовник";
+            document.getElementById('partnerInfo').innerHTML = `<span style="color: var(--text-muted)">Очікування пошуку...</span>`;
         }
 
-        initCamera().then(() => {
-            checkLocalStorage();
-        });
-        
-        generateCaptcha();
+        function toggleAudio() {
+            if (!localStream) return;
+            const track = localStream.getAudioTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                document.getElementById('btnAudio').classList.toggle('off', !track.enabled);
+                document.getElementById('btnAudio').innerText = track.enabled ? "🎙️" : "🔇";
+            }
+        }
+
+        function toggleVideo() {
+            if (!localStream) return;
+            const track = localStream.getVideoTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                document.getElementById('btnVideo').classList.toggle('off', !track.enabled);
+                document.getElementById('btnVideo').innerText = track.enabled ? "📹" : "🚫";
+            }
+        }
+
+        initCamera();
         document.getElementById('chatInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     </script>
 </body>
