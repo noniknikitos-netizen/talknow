@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TalkNow Pro — Надійний Відеозв'язок</title>
+    <title>TalkNow Pro — Стабільний Зв'язок</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -45,7 +45,6 @@
             position: relative;
         }
 
-        /* ЛІВА ПАНЕЛЬ: ФІЛЬТРИ */
         .side-panel {
             width: 320px;
             background-color: var(--bg-panel);
@@ -109,11 +108,7 @@
             font-weight: 700;
         }
 
-        .option-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+        .option-group { display: flex; flex-direction: column; gap: 4px; }
 
         select, input {
             width: 100%;
@@ -126,7 +121,6 @@
             outline: none;
         }
 
-        /* ЦЕНТР: ВІДЕОПЛЕЄР */
         .main-content {
             flex: 1;
             display: flex;
@@ -234,7 +228,6 @@
             box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
         }
 
-        /* КОМПОНЕНТИ ВЛАСНИКА */
         .developer-badge {
             display: none;
             position: absolute;
@@ -269,7 +262,6 @@
             overflow-y: auto;
         }
 
-        /* ПРАВА ПАНЕЛЬ: ЧАТ */
         .chat-panel {
             width: 340px;
             background-color: var(--bg-panel);
@@ -320,7 +312,6 @@
             background-color: var(--bg-panel);
         }
 
-        /* МУЛЬТИБАР ДЛЯ МОБІЛОК */
         .mobile-nav {
             display: none;
             width: 100%;
@@ -346,28 +337,14 @@
         .nav-item.active { color: var(--accent); }
         .nav-item span { font-size: 18px; }
 
-        /* ВХІДНЕ МОДАЛЬНЕ ВІКНО */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 7, 15, 0.96); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(10px); padding: 20px; }
         .modal-card { background: var(--bg-panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 360px; border: 1px solid #374151; text-align: center; }
         .modal-card h2 { margin-bottom: 15px; font-weight: 800; font-size: 20px; }
 
         @media (max-width: 992px) {
             .mobile-nav { display: grid; }
-
-            .side-panel {
-                position: absolute;
-                top: 0; left: 0; width: 100%; height: 100%;
-                transform: translateX(-100%);
-                border-right: none;
-            }
-
-            .chat-panel {
-                position: absolute;
-                top: 0; right: 0; width: 100%; height: 100%;
-                transform: translateX(100%);
-                border-left: none;
-            }
-
+            .side-panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: translateX(-100%); border-right: none; }
+            .chat-panel { position: absolute; top: 0; right: 0; width: 100%; height: 100%; transform: translateX(100%); border-left: none; }
             .side-panel.active-tab, .chat-panel.active-tab { transform: translateX(0); }
             .local-video-wrapper { width: 85px; height: 115px; top: 70px; right: 12px; }
             .partner-info-overlay { left: 12px; top: 12px; }
@@ -378,16 +355,11 @@
 <body>
 
     <div class="app-wrapper">
-        
         <div class="side-panel" id="tabFilters">
             <div class="logo-area">
                 <h1 id="appTitle">TalkNow Pro</h1>
-                <div class="status-badge">
-                    <div class="status-dot"></div>
-                    <span>Online</span>
-                </div>
+                <div class="status-badge"><div class="status-dot"></div><span>Online</span></div>
             </div>
-
             <div class="search-options">
                 <div class="option-group">
                     <div class="section-title">Я шукаю</div>
@@ -397,7 +369,6 @@
                         <option value="Чоловік">Тільки Хлопців 🙋‍♂️</option>
                     </select>
                 </div>
-
                 <div class="option-group">
                     <div class="section-title">Моя стать</div>
                     <select id="myGender">
@@ -405,7 +376,6 @@
                         <option value="Жінка">Я Дівчина 🙋‍♀️</option>
                     </select>
                 </div>
-
                 <div class="option-group">
                     <div class="section-title">Моя Країна</div>
                     <select id="myCountry">
@@ -415,7 +385,6 @@
                         <option value="🇩🇪 Німеччина">🇩🇪 Німеччина</option>
                     </select>
                 </div>
-
                 <div class="option-group">
                     <div class="section-title">Мій вік</div>
                     <input type="number" id="myAge" value="20" min="18" max="99">
@@ -426,19 +395,13 @@
         <div class="main-content" id="tabVideo">
             <div class="video-container">
                 <video id="remoteVideo" autoplay playsinline webkit-playsinline></video>
-                
                 <div class="local-video-wrapper">
                     <video id="localVideo" autoplay playsinline webkit-playsinline muted></video>
                 </div>
-
-                <div class="partner-info-overlay" id="partnerInfo">
-                    <span>Натисніть кнопку пошуку... 🔎</span>
-                </div>
-
+                <div class="partner-info-overlay" id="partnerInfo"><span>Натисніть кнопку пошуку... 🔎</span></div>
                 <div class="developer-badge" id="devBadge">CREATOR MODE</div>
                 <div class="dev-console" id="devConsole"></div>
             </div>
-
             <div class="bottom-controls">
                 <button id="btnAudio" class="btn btn-circle" onclick="toggleAudio()">🎙️</button>
                 <button id="btnVideo" class="btn btn-circle" onclick="toggleVideo()">📹</button>
@@ -451,17 +414,14 @@
                 <span>Чат кімната</span>
                 <span style="font-size: 12px; color: var(--accent);" id="chatStatus">очікування</span>
             </div>
-            
             <div class="chat-messages" id="chatMessages">
-                <div class="msg-block msg-system">Система ініціалізована. Зв'язок покращено захищеними TURN реле.</div>
+                <div class="msg-block msg-system">Система запущена. Очікування дій користувача.</div>
             </div>
-
             <div class="chat-input-wrapper">
                 <input type="text" id="chatInput" placeholder="Повідомлення...">
-                <button class="btn btn-circle" style="border-radius: 12px; width:48px; height:48px; background:var(--bg-card);" onclick="sendChatMessage()">➡️</button>
+                <button class="btn btn-circle" style="border-radius:12px; width:48px; height:48px; background:var(--bg-card);" onclick="sendChatMessage()">➡️</button>
             </div>
         </div>
-
     </div>
 
     <div class="mobile-nav">
@@ -473,275 +433,7 @@
     <div class="modal" id="authModal">
         <div class="modal-card">
             <h2>Вхід у систему</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Введіть нікнейм для спілкування. Для активації панелі Creator введіть `Адмін`.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Введіть ім'я. Для активації панелі Creator введіть `Адмін`.</p>
             <div style="text-align: left; margin-bottom: 15px;">
-                <input type="text" id="usernameInput" placeholder="Ваше ім'я..." value="Гість">
+                <input type="text" id="usernameInput" value="Гість">
             </div>
-            <button class="btn btn-primary" style="max-width:100%; width:100%;" onclick="closeAuthModal()">Увійти в чат 🚀</button>
-        </div>
-    </div>
-
-    <script>
-        let localStream;
-        let peerConnection;
-        let socket;
-        let myId = Math.random().toString(36).substr(2, 9);
-        let loggedInUser = null;
-        let isDeveloper = false;
-
-        if (!localStorage.getItem('dev_hardware_token')) {
-            localStorage.setItem('dev_hardware_token', 'user_' + Math.random().toString(36).substr(2, 15));
-        }
-        const myHardwareToken = localStorage.getItem('dev_hardware_token');
-
-        // ГЛОБАЛЬНА ПЕРЕВІРКА ТА ОНОВЛЕННЯ СЕРВЕРІВ (Додано потужні TURN-сервери для обходу стін зв'язку)
-        const configuration = { 
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'turn:relay.metered.ca:80', username: 'openwebrtc', credential: 'openwebrtc_bypass' },
-                { urls: 'turn:relay.metered.ca:443', username: 'openwebrtc', credential: 'openwebrtc_bypass' },
-                { urls: 'turn:relay.metered.ca:443?transport=tcp', username: 'openwebrtc', credential: 'openwebrtc_bypass' }
-            ],
-            iceCandidatePoolSize: 10
-        };
-
-        function logDev(message) {
-            console.log(message);
-            if (isDeveloper) {
-                const consoleEl = document.getElementById('devConsole');
-                const time = new Date().toLocaleTimeString();
-                consoleEl.innerHTML += `<div>[${time}] ${message}</div>`;
-                consoleEl.scrollTop = consoleEl.scrollHeight;
-            }
-        }
-
-        function switchMobileTab(tabName) {
-            document.getElementById('navItemFilters').classList.remove('active');
-            document.getElementById('navItemVideo').classList.remove('active');
-            document.getElementById('navItemChat').classList.remove('active');
-            document.getElementById('tabFilters').classList.remove('active-tab');
-            document.getElementById('tabChat').classList.remove('active-tab');
-
-            if (tabName === 'filters') {
-                document.getElementById('navItemFilters').classList.add('active');
-                document.getElementById('tabFilters').classList.add('active-tab');
-            } else if (tabName === 'chat') {
-                document.getElementById('navItemChat').classList.add('active');
-                document.getElementById('tabChat').classList.add('active-tab');
-            } else {
-                document.getElementById('navItemVideo').classList.add('active');
-            }
-        }
-
-        function closeAuthModal() {
-            const name = document.getElementById('usernameInput').value.trim() || "Гість";
-            
-            if (name === "Адмін" || myHardwareToken === localStorage.getItem('my_saved_owner_key')) {
-                if(!localStorage.getItem('my_saved_owner_key')) {
-                    localStorage.setItem('my_saved_owner_key', myHardwareToken);
-                }
-                isDeveloper = true;
-                document.getElementById('devBadge').style.display = 'block';
-                document.getElementById('devConsole').style.display = 'block';
-                document.getElementById('appTitle').innerText = "TalkNow Creator";
-                logDev("Токен підтверджено. Вітаємо Творця.");
-            }
-
-            loggedInUser = {
-                name: isDeveloper ? `👑 ${name} (Dev)` : name,
-                gender: document.getElementById('myGender').value,
-                age: document.getElementById('myAge').value,
-                country: document.getElementById('myCountry').value,
-                searchGender: document.getElementById('searchGender').value,
-                isDev: isDeveloper
-            };
-
-            document.getElementById('authModal').style.display = 'none';
-            initWebSocket(loggedInUser);
-        }
-
-        async function initCamera() {
-            try {
-                // Оптимальні параметри запиту камери для швидкого підвантаження
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } }, 
-                    audio: true 
-                });
-                document.getElementById('localVideo').srcObject = localStream;
-                logDev("Камера і мікрофон успішно ініціалізовані локально.");
-            } catch (e) { 
-                logDev(`Помилка доступу до медіа: ${e.name}`);
-                appendSystemMessage(`Помилка камери! Перевірте дозволи у браузері.`, true);
-            }
-        }
-
-        function initWebSocket(profile) {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            socket = new WebSocket(`${protocol}//${window.location.host}`);
-
-            socket.onopen = () => {
-                logDev("WS канал активовано.");
-                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
-            };
-
-            socket.onmessage = async (message) => {
-                const data = JSON.parse(message.data);
-
-                if (data.type === 'waiting') {
-                    document.getElementById('partnerInfo').innerHTML = `<span>Пошук людей... 🔍</span>`;
-                    document.getElementById('chatStatus').innerText = "у пошуку";
-                }
-
-                if (data.type === 'connected') {
-                    const p = data.partnerProfile;
-                    document.getElementById('partnerInfo').innerHTML = `<span>${p.country} <strong>${p.name}, ${p.age} р.</strong></span>`;
-                    document.getElementById('chatStatus').innerText = "активний";
-                    appendSystemMessage(`Підключено: ${p.name} з ${p.country}`);
-                    switchMobileTab('video');
-                    
-                    // Запуск WebRTC з'єднання
-                    startCall(true);
-                }
-
-                if (data.type === 'partner_disconnected') {
-                    appendSystemMessage("Співрозмовник вийшов з чату.");
-                    closeCall();
-                }
-
-                if (data.type === 'chat_message') {
-                    appendMessage("partner", data.text);
-                }
-
-                if (data.type === 'offer') {
-                    await startCall(false);
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
-                    const answer = await peerConnection.createAnswer();
-                    await peerConnection.setLocalDescription(answer);
-                    socket.send(JSON.stringify(peerConnection.localDescription));
-                }
-
-                if (data.type === 'answer') {
-                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
-                }
-
-                if (data.type === 'candidate') {
-                    if (peerConnection) {
-                        try { await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch(e) {}
-                    }
-                }
-            };
-        }
-
-        async function startCall(isCaller) {
-            logDev(`Створення нового RTC з'єднання. Caller: ${isCaller}`);
-            if (peerConnection) { peerConnection.close(); }
-            
-            peerConnection = new RTCPeerConnection(configuration);
-            
-            if (localStream) {
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-            } else {
-                logDev("Увага: локальний медіапотік відсутній під час старту дзвінка.");
-            }
-
-            // Отримання потоку партнера (Звук + Відео)
-            peerConnection.ontrack = (event) => {
-                logDev("Отримано віддалені треки (відео/аудіо).");
-                const remoteVideo = document.getElementById('remoteVideo');
-                if (event.streams && event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                    
-                    // Фікс для мобільних пристроїв: примусовий запуск програвання після отримання потоку
-                    remoteVideo.play().catch(err => logDev(`Помилка автоплею віддаленого відео: ${err}`));
-                }
-            };
-
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    socket.send(JSON.stringify({ type: 'candidate', candidate: event.candidate }));
-                }
-            };
-
-            // Обробка зміни статусу з'єднання для налагодження
-            peerConnection.onconnectionstatechange = () => {
-                logDev(`Статус RTC з'єднання змінено: ${peerConnection.connectionState}`);
-            };
-
-            if (isCaller) {
-                const offer = await peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
-                await peerConnection.setLocalDescription(offer);
-                socket.send(JSON.stringify(peerConnection.localDescription));
-            }
-        }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (text && socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ type: 'message', text: text }));
-                appendMessage("me", text);
-                input.value = "";
-            }
-        }
-
-        function appendMessage(type, text) {
-            const box = document.getElementById('chatMessages');
-            const msg = document.createElement('div');
-            msg.className = `msg-block ${type === 'me' ? 'msg-me' : 'msg-partner'}`;
-            msg.innerText = text;
-            box.appendChild(msg);
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function appendSystemMessage(text, isError = false) {
-            const box = document.getElementById('chatMessages');
-            const msg = document.createElement('div');
-            msg.className = `msg-block ${isError ? 'msg-error' : 'msg-system'}`;
-            msg.innerText = text;
-            box.appendChild(msg);
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function nextPartner() {
-            closeCall();
-            document.getElementById('chatMessages').innerHTML = "";
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                loggedInUser.searchGender = document.getElementById('searchGender').value;
-                loggedInUser.gender = document.getElementById('myGender').value;
-                loggedInUser.age = document.getElementById('myAge').value;
-                loggedInUser.country = document.getElementById('myCountry').value;
-                socket.send(JSON.stringify({ type: 'next', profile: loggedInUser }));
-                switchMobileTab('video');
-            }
-        }
-
-        function closeCall() {
-            if (peerConnection) { peerConnection.close(); peerConnection = null; }
-            document.getElementById('remoteVideo').srcObject = null;
-            document.getElementById('partnerInfo').innerHTML = `<span>Пошук наступного партнера... 🔎</span>`;
-        }
-
-        function toggleAudio() {
-            if (!localStream) return;
-            const track = localStream.getAudioTracks()[0];
-            if (track) { track.enabled = !track.enabled; document.getElementById('btnAudio').classList.toggle('off', !track.enabled); }
-        }
-
-        function toggleVideo() {
-            if (!localStream) return;
-            const track = localStream.getVideoTracks()[0];
-            if (track) { track.enabled = !track.enabled; document.getElementById('btnVideo').classList.toggle('off', !track.enabled); }
-        }
-
-        initCamera();
-        
-        // Автоматичний редірект на HTTPS для працездатності камер
-        if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
-            window.location.href = window.location.href.replace('http:', 'https:');
-        }
-        document.getElementById('chatInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
-    </script>
-</body>
-</html>
