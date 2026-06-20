@@ -4,6 +4,7 @@
   "description": "Video chat application",
   "main": "server.js",
   "dependencies": {
+    "express": "^4.19.2",
     "ws": "^8.18.0"
   },
   "engines": {
