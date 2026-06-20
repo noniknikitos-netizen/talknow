@@ -13,11 +13,11 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --danger: #ef4444;
+            --success: #22c55e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; height: -webkit-fill-available; overflow: hidden; }
-        html { height: -webkit-fill-available; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
         header { background-color: var(--bg-card); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; height: 55px; }
         header h1 { font-size: 18px; font-weight: 700; color: var(--accent); }
@@ -26,39 +26,46 @@
         select, button, input { background-color: #334155; color: var(--text-main); border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
         button.primary { background-color: var(--accent); font-weight: 600; }
         button.primary:hover { background-color: var(--accent-hover); }
+        button.danger { background-color: var(--danger); }
 
         .main-container { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 55px); overflow: hidden; }
 
-        /* Відеосітка адаптована під мобільні */
         .video-grid { flex: 1; display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 10px; min-height: 0; }
         @media(min-width: 768px) { .video-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; } }
 
         .video-wrapper { background-color: var(--bg-card); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #334155; display: flex; justify-content: center; align-items: center; }
         video { width: 100%; height: 100%; object-fit: contain; background-color: #000; transform: scaleX(-1); }
         #remoteVideo { transform: none; }
-        .video-label { position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.7); padding: 4px 8px; border-radius: 12px; font-size: 11px; backdrop-filter: blur(4px); max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .video-label { position: absolute; bottom: 8px; left: 8px; background: rgba(15, 23, 42, 0.7); padding: 4px 8px; border-radius: 12px; font-size: 11px; backdrop-filter: blur(4px); max-width: 90%; }
 
-        /* Текстовий Чат */
         .chat-box { height: 110px; background: var(--bg-card); border-radius: 12px; border: 1px solid #334155; display: flex; flex-direction: column; overflow: hidden; }
         .chat-messages { flex: 1; padding: 8px; overflow-y: auto; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
         .chat-input-area { display: flex; border-top: 1px solid #334155; }
         .chat-input-area input { flex: 1; background: transparent; border-radius: 0; padding: 8px; }
         .chat-input-area button { border-radius: 0; background: var(--accent); width: 60px; }
 
-        /* Нижня панель */
         .action-bar { display: flex; justify-content: center; gap: 10px; padding: 5px 0; align-items: center; }
         .circle-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; background: #334155; }
+        .circle-btn.off { background: var(--danger); }
 
-        /* Модальні вікна (Реєстрація та Налаштування) */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.9); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); padding: 15px; }
-        .modal-card { background: var(--bg-card); padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center; border: 1px solid #475569; max-height: 90vh; overflow-y: auto; }
+        /* Модалка авторизації */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.95); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(8px); padding: 15px; }
+        .modal-card { background: var(--bg-card); padding: 20px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center; border: 1px solid #475569; max-height: 95vh; overflow-y: auto; }
         
-        .avatar-container { position: relative; width: 90px; height: 90px; margin: 0 auto 10px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .tab { flex: 1; padding: 8px; background: transparent; color: var(--text-muted); font-weight: 600; border-radius: 6px; }
+        .tab.active { background: #334155; color: #fff; }
+
+        .avatar-container { position: relative; width: 80px; height: 80px; margin: 0 auto 10px; }
         .avatar-preview { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); background: #334155; }
         
-        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group { margin-bottom: 10px; text-align: left; }
         .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
         .input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #475569; padding: 10px; border-radius: 8px; color: #fff; }
+
+        /* Капча */
+        .captcha-box { display: flex; align-items: center; gap: 10px; background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px; justify-content: space-between; }
+        .captcha-num { font-size: 18px; font-weight: bold; letter-spacing: 5px; color: var(--accent); background: #1e293b; padding: 4px 10px; border-radius: 4px; user-select: none; }
     </style>
 </head>
 <body>
@@ -87,7 +94,6 @@
             </div>
         </div>
 
-        <!-- Текстовий чат -->
         <div class="chat-box">
             <div class="chat-messages" id="chatMessages"></div>
             <div class="chat-input-area">
@@ -97,55 +103,69 @@
         </div>
 
         <div class="action-bar">
-            <button id="btnFlip" class="circle-btn">🔄</button>
-            <button id="btnNext" class="primary" style="padding: 0 25px; height: 44px; border-radius: 22px; font-size: 15px;" onclick="nextPartner()">Пошук / Наступний ➡️</button>
+            <button id="btnAudio" class="circle-btn" onclick="toggleAudio()" title="Мікрофон">🎙️</button>
+            <button id="btnVideo" class="circle-btn" onclick="toggleVideo()" title="Камера">📹</button>
+            <button id="btnFlip" class="circle-btn" title="Камера">🔄</button>
+            <button id="btnNext" class="primary" style="padding: 0 20px; height: 44px; border-radius: 22px; font-size: 14px;" onclick="nextPartner()">Наступний ➡️</button>
         </div>
     </div>
 
-    <!-- Модалка реєстрації / входу -->
+    <!-- Модалка Входу / Реєстрації -->
     <div class="modal" id="profileModal">
         <div class="modal-card">
-            <h2 id="modalTitle" style="margin-bottom: 15px; font-size: 18px;">Вхід або Реєстрація</h2>
-            
-            <div class="avatar-container">
-                <img id="avatarImg" class="avatar-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+            <div class="tabs" id="authTabs">
+                <button class="tab active" onclick="setAuthMode('login')" id="tabLogin">Вхід</button>
+                <button class="tab" onclick="setAuthMode('register')" id="tabRegister">Реєстрація</button>
             </div>
-            
-            <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 15px;">
-                <label class="primary" style="padding: 6px 10px; font-size: 12px; border-radius: 6px; cursor: pointer;">
-                    📂 <span id="btnGallery">Галерея</span>
-                    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="loadAvatarFile(event)">
-                </label>
-                <button type="button" style="font-size: 12px;" onclick="snapAvatar()">📸 <span id="btnSnap">Зробити фото</span></button>
+
+            <!-- Блок Реєстрації (Аватарка) -->
+            <div id="regAvatarBlock">
+                <div class="avatar-container">
+                    <img id="avatarImg" class="avatar-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                </div>
+                <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 12px;">
+                    <label class="primary" style="padding: 5px 10px; font-size: 11px; border-radius: 6px; cursor: pointer;">
+                        📂 <span id="btnGallery">Галерея</span>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="loadAvatarFile(event)">
+                    </label>
+                    <button type="button" style="font-size: 11px;" onclick="snapAvatar()">📸 <span id="btnSnap">Зробити фото</span></button>
+                </div>
             </div>
 
             <div class="input-group">
-                <label id="lblUsername">Твоє Ім'я</label>
-                <input type="text" id="usernameInput" value="Користувач">
+                <label id="lblUsername">Логін / Ім'я</label>
+                <input type="text" id="usernameInput" placeholder="Введіть ваш логін">
             </div>
 
-            <div class="input-group">
-                <label id="lblGender">Стать</label>
-                <select id="genderInput">
-                    <option value="Чоловік" id="optMale">Чоловік</option>
-                    <option value="Жінка" id="optFemale">Жінка</option>
-                </select>
+            <div id="regFields">
+                <div class="input-group">
+                    <label id="lblGender">Стать</label>
+                    <select id="genderInput">
+                        <option value="Чоловік" id="optMale">Чоловік</option>
+                        <option value="Жінка" id="optFemale">Жінка</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label id="lblAge">Вік</label>
+                    <input type="number" id="ageInput" value="18" min="12" max="99">
+                </div>
             </div>
 
-            <div class="input-group">
-                <label id="lblAge">Вік</label>
-                <input type="number" id="ageInput" value="18" min="12" max="99">
+            <!-- Перевірка на бота -->
+            <div class="captcha-box" id="captchaBox">
+                <div class="captcha-num" id="captchaCode">1234</div>
+                <input type="text" id="captchaInput" placeholder="Код" style="width: 100px; padding: 8px;">
             </div>
 
-            <button class="primary" style="width: 100%; padding: 10px; margin-top: 5px;" onclick="saveProfile()" id="btnSave">Вхід / Реєстрація</button>
+            <button class="primary" style="width: 100%; padding: 12px; margin-top: 5px;" onclick="submitAuth()" id="btnSave">Увійти</button>
         </div>
     </div>
 
     <script>
         const translations = {
-            uk: { lblMe: "Я", lblPartner: "Співрозмовник", btnNext: "Пошук / Наступний ➡️", modalTitle: "Вхід або Реєстрація", btnGallery: "Галерея", btnSnap: "Зробити фото", lblUsername: "Твоє Ім'я", lblGender: "Стать", optMale: "Чоловік", optFemale: "Жінка", lblAge: "Вік", btnSave: "Вхід / Реєстрація", statusWaiting: "Пошук людини...", statusConnected: "Співрозмовник: ", placeholder: "Напишіть повідомлення..." },
-            en: { lblMe: "Me", lblPartner: "Partner", btnNext: "Search / Next ➡️", modalTitle: "Login or Sign Up", btnGallery: "Gallery", btnSnap: "Take Photo", lblUsername: "Your Name", lblGender: "Gender", optMale: "Male", optFemale: "Female", lblAge: "Age", btnSave: "Login / Sign Up", statusWaiting: "Searching for someone...", statusConnected: "Partner: ", placeholder: "Type a message..." },
-            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Поиск / Следующий ➡️", modalTitle: "Вход или Регистрация", btnGallery: "Галерея", btnSnap: "Сделать фото", lblUsername: "Твое Имя", lblGender: "Пол", optMale: "Мужчина", optFemale: "Женщина", lblAge: "Возраст", btnSave: "Вход / Регистрация", statusWaiting: "Поиск собеседника...", statusConnected: "Собеседник: ", placeholder: "Напишите сообщение..." }
+            uk: { lblMe: "Я", lblPartner: "Співрозмовник", btnNext: "Наступний ➡️", tabLogin: "Вхід", tabRegister: "Реєстрація", btnGallery: "Галерея", btnSnap: "Зробити фото", lblUsername: "Логін / Ім'я", lblGender: "Стать", optMale: "Чоловік", optFemale: "Жінка", lblAge: "Вік", btnSaveLogin: "Увійти", btnSaveRegister: "Створити акаунт", statusWaiting: "Пошук людини...", statusConnected: "Співрозмовник: ", placeholder: "Напишіть повідомлення...", badCaptcha: "Невірний код капчі!" },
+            en: { lblMe: "Me", lblPartner: "Partner", btnNext: "Next ➡️", tabLogin: "Login", tabRegister: "Register", btnGallery: "Gallery", btnSnap: "Take Photo", lblUsername: "Login / Name", lblGender: "Gender", optMale: "Male", optFemale: "Female", lblAge: "Age", btnSaveLogin: "Login", btnSaveRegister: "Create Account", statusWaiting: "Searching for someone...", statusConnected: "Partner: ", placeholder: "Type a message...", badCaptcha: "Invalid captcha code!" },
+            ru: { lblMe: "Я", lblPartner: "Собеседник", btnNext: "Следующий ➡️", tabLogin: "Вход", tabRegister: "Регистрация", btnGallery: "Галерея", btnSnap: "Сделать фото", lblUsername: "Логин / Имя", lblGender: "Пол", optMale: "Мужчина", optFemale: "Женщина", lblAge: "Возраст", btnSaveLogin: "Войти", btnSaveRegister: "Создать аккаунт", statusWaiting: "Поиск собеседника...", statusConnected: "Собеседник: ", placeholder: "Напишите сообщение...", badCaptcha: "Неверный код капчи!" }
         };
 
         let currentLang = 'uk';
@@ -155,15 +175,24 @@
         let myId = Math.random().toString(36).substr(2, 9);
         let myAvatarData = "";
         let currentFacingMode = "user";
+        let authMode = "login"; // або 'register'
+        let generatedCaptcha = "";
 
-        const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        // ПУБЛІЧНІ XIRSYS TURN-СЕРВЕРИ ЩОБ ВІДЕО ПРАЦЮВАЛО МІЖ КОМП'ЮТЕРОМ І ТЕЛЕФОНОМ
+        const configuration = { 
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ] 
+        };
 
         function changeLanguage() {
             currentLang = document.getElementById('langSelect').value;
             const t = translations[currentLang];
             document.getElementById('lblMe').innerText = t.lblMe;
             document.getElementById('btnNext').innerText = t.btnNext;
-            document.getElementById('modalTitle').innerText = t.modalTitle;
+            document.getElementById('tabLogin').innerText = t.tabLogin;
+            document.getElementById('tabRegister').innerText = t.tabRegister;
             document.getElementById('btnGallery').innerText = t.btnGallery;
             document.getElementById('btnSnap').innerText = t.btnSnap;
             document.getElementById('lblUsername').innerText = t.lblUsername;
@@ -171,8 +200,69 @@
             document.getElementById('optMale').innerText = t.optMale;
             document.getElementById('optFemale').innerText = t.optFemale;
             document.getElementById('lblAge').innerText = t.lblAge;
-            document.getElementById('btnSave').innerText = t.btnSave;
             document.getElementById('chatInput').placeholder = t.placeholder;
+            updateAuthButtonText();
+        }
+
+        function setAuthMode(mode) {
+            authMode = mode;
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+            document.getElementById('regFields').style.display = mode === 'login' ? 'none' : 'block';
+            document.getElementById('regAvatarBlock').style.display = mode === 'login' ? 'none' : 'block';
+            updateAuthButtonText();
+        }
+
+        function updateAuthButtonText() {
+            const t = translations[currentLang];
+            document.getElementById('btnSave').innerText = authMode === 'login' ? t.btnSaveLogin : t.btnSaveRegister;
+        }
+
+        function generateCaptcha() {
+            generatedCaptcha = Math.floor(1000 + Math.random() * 9000).toString();
+            document.getElementById('captchaCode').innerText = generatedCaptcha;
+        }
+
+        // Автоматичне завантаження профілю з пам'яті браузера (якщо він є)
+        function checkLocalStorage() {
+            const savedProfile = localStorage.getItem('talknow_profile');
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                document.getElementById('usernameInput').value = profile.name;
+                document.getElementById('genderInput').value = profile.gender;
+                document.getElementById('ageInput').value = profile.age;
+                if (profile.avatar) {
+                    myAvatarData = profile.avatar;
+                    document.getElementById('avatarImg').src = myAvatarData;
+                }
+                setAuthMode('login'); // якщо вже є дані, пропонуємо просто увійти
+            } else {
+                setAuthMode('register'); // якщо новий користувач — реєструємо
+            }
+        }
+
+        function submitAuth() {
+            const enteredCaptcha = document.getElementById('captchaInput').value.trim();
+            if (enteredCaptcha !== generatedCaptcha) {
+                alert(translations[currentLang].badCaptcha);
+                generateCaptcha();
+                return;
+            }
+
+            const profile = {
+                name: document.getElementById('usernameInput').value || "Користувач",
+                gender: document.getElementById('genderInput').value,
+                age: document.getElementById('ageInput').value,
+                avatar: myAvatarData
+            };
+
+            // Якщо це реєстрація, зберігаємо в пам'ять пристрою
+            if (authMode === 'register') {
+                localStorage.setItem('talknow_profile', JSON.stringify(profile));
+            }
+
+            document.getElementById('profileModal').style.display = 'none';
+            if (!socket) initWebSocket(profile);
         }
 
         async function initCamera() {
@@ -196,6 +286,24 @@
             }
         };
 
+        function toggleAudio() {
+            const audioTrack = localStream.getAudioTracks()[0];
+            if (audioTrack) {
+                audioTrack.enabled = !audioTrack.enabled;
+                document.getElementById('btnAudio').classList.toggle('off', !audioTrack.enabled);
+                document.getElementById('btnAudio').innerText = audioTrack.enabled ? "🎙️" : "🔇";
+            }
+        }
+
+        function toggleVideo() {
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                document.getElementById('btnVideo').classList.toggle('off', !videoTrack.enabled);
+                document.getElementById('btnVideo').innerText = videoTrack.enabled ? "📹" : "🚫";
+            }
+        }
+
         function loadAvatarFile(event) {
             const reader = new FileReader();
             reader.onload = function() {
@@ -217,34 +325,15 @@
 
         function openSettings() {
             document.getElementById('profileModal').style.display = 'flex';
+            generateCaptcha();
         }
 
-        function saveProfile() {
-            document.getElementById('profileModal').style.display = 'none';
-            if (!socket) {
-                initWebSocket();
-            } else if (socket.readyState === WebSocket.OPEN) {
-                // Оновлення профілю на льоту
-                const profile = getProfileData();
-                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
-            }
-        }
-
-        function getProfileData() {
-            return {
-                name: document.getElementById('usernameInput').value,
-                gender: document.getElementById('genderInput').value,
-                age: document.getElementById('ageInput').value,
-                avatar: myAvatarData
-            };
-        }
-
-        function initWebSocket() {
+        function initWebSocket(profile) {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             socket = new WebSocket(`${protocol}//${window.location.host}`);
 
             socket.onopen = () => {
-                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: getProfileData() }));
+                socket.send(JSON.stringify({ type: 'join', userId: myId, profile: profile }));
             };
 
             socket.onmessage = async (message) => {
@@ -346,10 +435,10 @@
             document.getElementById('lblPartner').innerText = translations[currentLang].lblPartner;
         }
 
-        // Запуск камери відразу
         initCamera();
+        checkLocalStorage();
+        generateCaptcha();
         
-        // Відправка повідомлень по натисканню Enter
         document.getElementById('chatInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendChatMessage();
         });
